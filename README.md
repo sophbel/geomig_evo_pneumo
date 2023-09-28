@@ -1,4 +1,4 @@
-# Code to accompany the paper 'Geographic migration and vaccine-induced fitness changes of *Streptococcus pneumoniae*, Belman *et al*.' <br />
+# Code to accompany the paper 'Geographic migration and vaccine-induced fitness changes of *Streptococcus pneumoniae*' <br />
 ## Geographic migration and vaccine-induced fitness changes of *Streptococcus pneumoniae*
 The two folders pertain to the two main components of this paper. <br />
 1) Geographic Analysis including human mobility model and relative risk framework:  ```./HumanMobility_RR/```
