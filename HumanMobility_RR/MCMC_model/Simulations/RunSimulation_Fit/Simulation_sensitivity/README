@@ -1,0 +1,17 @@
+##README
+## sensitivity analyses
+
+# '_carriageLocs'
+# samples only 2/9 provinces - only those with carriage data as Mpumalanga and Gauteng have. 
+
+# 'wrongGenTime' 
+# fit as if we have estimated a 2X greater generation time than there truly is.
+
+# 'wrongGenTime05'
+# fit as if we have estimated a 0.5X generation time than there truly is.
+
+# 'randomSamp'
+# fit as if we have randomly downsampled the dataset irrelevant to whether samples are from each province or not. 
+
+# 'randomSamp2' 
+# fit as if we have taken a biased downsample including an equal number from each province. 
