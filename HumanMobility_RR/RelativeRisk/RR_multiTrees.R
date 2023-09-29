@@ -78,7 +78,6 @@ library(BactDating)
 gpscgub <- c(2,79,1,5,10,13,14,17,68)
 
 categorical=TRUE
-setwd("/Users/sb62/Documents/Migration/Analysis_GeographicMobility_pneumoPaper/HumanMobility_RR/")
 load("./data/gps_metadata/GPS_SA.RData")
 
 ##Load in Data
