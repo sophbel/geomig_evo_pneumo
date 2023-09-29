@@ -5,7 +5,9 @@ This analysis integrates human mobility data and genomic data to mechanistically
 <p align="center">
   <img src="Method_schematic/schematic.png" width="500">
 </p>
-The genomic data is freely available on the ENA and the ERR accession numbers can be accessed at https://figshare.com/s/f5bf29ef37f7771bba8b 
+
+*The genomic data is freely available on the ENA and the ERR accession numbers can be accessed at https://figshare.com/s/f5bf29ef37f7771bba8b* 
+
 ### Install R packages. 
 ```install.packages(c("raster","rgdal","data.table","doParallel","ucminf","doMC","Rcpp","RcppEigen","Rfast","abind","ggplot2","fmcmc","coda","dplyr","ape","lubridate","tmaptools","geodist","PBSmapping","stringi","maptools","tidyr","stringr","ComplexHeatmap","circlize","patchwork"))```
 
