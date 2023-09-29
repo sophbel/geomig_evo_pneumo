@@ -84,7 +84,7 @@ Run Model Files: ```./MCMC_model/HumMob/RunModel/041122_Pneumo_MCMC_MUNIC.R```<b
 ### Test Model Fit <br />
 *Test your model fit against the data*
 1) Run code: ```mkdir ./MCMC_model/TestFit/Plots``` & ```mkdir ./MCMC_model/TestFit/Data```
-2) Open ```051122_MunicFitTest.R```
+2) Open ```051122_MunicFitTest_adj.R```
 3) Set the number of iterations to match the number of iterations in your model run under variable ```iters```
 
 
@@ -92,20 +92,22 @@ Run Model Files: ```./MCMC_model/HumMob/RunModel/041122_Pneumo_MCMC_MUNIC.R```<b
 *This is a file to simulate a true epidemic, sub-sample the phylogeny, and fit the data on the sub-sampled phylogeny representing the true incompleteness inherent to data. This is simulated with a parameter of -2 input and we are able to recapture it with the model.*
 1) Navigate to ```./MCMC_model/Simulations/```
 2) ```mkdir output``` & ```mkdir Plots```
-3) Open ```./MCMC_model/Simulations/051122_Simulate_fit_CLUSTER.R```
+3) Open ```./MCMC_model/Simulations/RunSimulation_Fit/051122_Simulate_fit_CLUSTER.R```
 4) Set the number of iterations ```iters=20000``` & scale ```scale=0.06```
-5) Run ```./MCMC_model/Simulations/051122_Simulate_fit_CLUSTER.R```
-6) To plot and the true data, sub-sampled data, and model fit run ```./MCMC_model/Simulations/051122_Simulate_Recapture_CLUSTER.R```
+5) Run ```./MCMC_model/Simulations/RunSimulation_Fit/051122_Simulate_fit_CLUSTER.R```
+6) To plot and the true data, sub-sampled data, and model fit run ```./MCMC_model/Simulations/TestFit/051122_Simulate_Recapture_adj_CLUSTER.R```
 
 ### Model Projection Simulations <br />
 *These are the scripts to simulate pneumococcal transmission*
 ```./ModelProjections/```
 1) Load the 3 chains from the model with 20000 iterations from (https://figshare.com/s/5761f8d7ace15fb22b9d)
 2) ```mkdir ./ModelProjections/data/``` & ```mkdir ./ModelProjections/plots/```
-3) Generate the 234X234Xnumber of transmission generations array using ```051122_234X234_MobPerGen.R```
+3) Generate the 234X234Xnumber of transmission generations array using ```051122_234X234_MobPerGen_adj.R```
 4) Run ```051122_map_plots.R``` to generate the relative risk of transmission after on year maps as well as the rural vs. urban transmission initiations maps.
 5) Run ```051122_NMunicSim.R``` to simulate the branching epidemic.
-6) To vary whether the start location is Rural (<50per/km2) or Urban (>500per/km2) run ```051122_RuralUrbanNMunic.R```. 
+6) To vary whether the start location is Rural (<50per/km2) or Urban (>500per/km2) run ```051122_RuralUrbanNMunic.R```.
+7) Load time-resolved phylogenies from FigShare ().
+8) Run ```080523_proportionPerGenDist_adj.R``` to make Figure 3B and see the proportion at each distance for each parameter. 
 
 ### Generation Time Estimates <br />
 *Take the carriage duration estimates from The Gambia and Kilifi, Kenya (Abdullahi et al., 2012 and Chaguza et al., 2021) and estimate the transmission generation distribution using simulation* <br />
@@ -117,6 +119,6 @@ Script: ```./RelativeRisk/061122_RRScript.Rmd```<br />
 1) Navigate to the folder. ```cd RelativeRisk/```
 2) ```mkdir plots```
 3) Open ```061122_RRScript.Rmd``` and run the code chunks to produce the same data files you downloaded in the ```./RelativeRisk/files/``` folder. 
-4) Open ```RR_plots.R``` to reproduce the relative risk plots from the paper
+4) Open ```RR_plots.R``` to reproduce the relative risk plots from the paper. To use the version incorporating phylogenetic uncertainty across multiple trees open ```RR_multiTrees.R```.
 
 
