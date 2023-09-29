@@ -30,7 +30,9 @@ Unzip and place files in ```./data/landscan2017/```<br />
   ```mkdir ./data/shapefiles```<br />
   Download South Africa shapefiles from GADM (https://gadm.org/data.html)<br />
   Unzip downloaded files and place them in ```./data/shapefiles/```<br />
-  
+Download BactDating output objects (https://figshare.com/s/6aaefbfa814d242ffced) <br /.
+Unzip downloaded files and place them in ```./data/phylogenies/```<br />
+
 2) **Facebook Data** (https://dataforgood.facebook.com/) <br />
 *This script reads in the raw facebook mobility data from the disaster movement range maps (data downloaded from FigShare URL).*<br />
 Script: ```facebook_rawData.R``` <br />
