@@ -78,6 +78,7 @@ library(BactDating)
 gpscgub <- c(2,79,1,5,10,13,14,17,68)
 
 categorical=TRUE
+setwd("/Users/sb62/Documents/Migration/Analysis_GeographicMobility_pneumoPaper/HumanMobility_RR/")
 load("./data/gps_metadata/GPS_SA.RData")
 
 ##Load in Data
@@ -250,19 +251,29 @@ for (k in 1:length(tseqmax)) {
   gpsc_matrix = gpsc_mat
   denom_matrix = (strain_mat>tseqmax[k])
   nseq = dim(colyear_matrix)[1]
+  # region_vec <- names(table(subset(GPS_GPSC_everything,GPS_GPSC_everything$Country=="South Africa")$Region))
+  
   region_vec <- names(table(GPS_GPSC_everything$Region))
+  
+  ### multiple samples across samples from regions
+  sample_boot<-vector(mode="numeric",length=20)
+  for (sb in 1:20){
+  ### sample 300 from each location
       selectedSeqs=NULL
       for (i in 1:length(region_vec)) {
         a <- which(vector_region==region_vec[i] )
-        b <- if (length(a) == 1) a else sample(a,min(300,length(a)),replace=F)
+        b <- if (length(a) == 1) a else sample(a,min(100,length(a)),replace=F)
         selectedSeqs <- c(selectedSeqs,b)
       }
-      # selectedSeqs <- sample(nseq,replace=T,prob=c(1/weight_vector))#length of number of sequences of that location with that GPSCs
-      tmp = sample(selectedSeqs, replace = T)
+      ### bind the other countries with the 300 from each region of South Africa
+    tmp = sample(selectedSeqs, replace = T)
     rr =neighbor_cont_bootstrap(x=sa_row,y=tmp,geo_matrix=geo_matrix, colyear_matrix=colyear_matrix, strain_matrix=strain_matrix, gpsc_matrix=gpsc_matrix,denom_matrix=denom_matrix)
+    sample_boot[sb]<-rr
+    }
     # boot.out[,j] = rr
     print(k)
-    tseq_out[,k]<-rr
+    tseq_out[,k]<-mean(sample_boot)
+    # tseq_out[,k]<-rr
     # print(j)
 }
 
