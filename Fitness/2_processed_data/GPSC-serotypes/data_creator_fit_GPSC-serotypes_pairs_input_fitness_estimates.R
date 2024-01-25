@@ -151,7 +151,16 @@ for(i in 1:nb_years){
 }
 
 ## Year of vaccine introduction, per province
-vaccine_introduction = 2009 + 1 - first_year
+vaccine_introduction = c(2009 - first_year + 1, 2011 - first_year + 1)
+
+## Vaccine implementations
+sero_names = unlist(lapply(names[-ref_clade], function(x)stringr::str_split(x, pattern = '_')[[1]][2]))
+sero_names[which(is.na(match(sero_names, pcv13.type)) == T & is.na(match(sero_names, pcv7.type)) == T)] = 'NVT'
+sero_names[which(is.na(match(sero_names, pcv7.type)) == F)] = 'PCV7'
+sero_names[which(is.na(match(sero_names, pcv13.type)) == F)] = 'PCV13'
+a = match(sero_names, c('PCV7', 'PCV13'))
+vax_implementation = a
+vax_implementation[which(is.na(vax_implementation))] = 0
 
 
 ## Fitness from previous fit (un-comment the relevant part)
