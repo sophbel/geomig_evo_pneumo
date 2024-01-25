@@ -7,6 +7,7 @@ library(binom)
 setwd('/Users/noemielefrancq/Documents/Project_fitness_Strep_Pneumo/SPneumoMobility/Fitness/fitness_clean_NL')
 
 ## Load fit
+# fit = readRDS(file = '4_2_per_serotype_overvallSA/Output_individual_serotypes_swicth2009_fit_all.rds')
 fit = readRDS(file = '4_2_per_serotype_overvallSA/Output_individual_serotypes_swicth2009_fit_all.rds')
 
 ## Chains
@@ -52,7 +53,7 @@ load('/Users/noemielefrancq/Documents/Project_fitness_Strep_Pneumo/SPneumoMobili
 
 serotypes = levels(as.factor(GPS_SA.sub$In_Silico_Serotype))
 
-pdf(width = 19/2.54, height = 27/2.54, file = "Figure_fits_per_serotype_full_parameters.pdf", onefile = T)
+pdf(width = 19/2.54, height = 27/2.54, file = "Figure_fits_per_serotype_full_parameters_23012024.pdf", onefile = T)
 par(mfrow = c(8,6), oma = c(1,1,1,0), mai = c(0.2,0.2,0.2,0.1))
 
 cexmain = 0.9
@@ -159,7 +160,7 @@ for(c in 1:fit$data$nb_countries){
             y = c(f_mean_ci[2,], rev(f_mean_ci[3,])), col = adjustcolor(colors[i], alpha.f = 0.4), border = F)
     
     # abline(v = fit$data$yearF0[c], lty = 3)
-    abline(v = fit$data$yearIntroduction[c], lty = 3)
+    abline(v = fit$data$yearIntroduction[fit$data$vax_implementation[i]], lty = 3)
     
     total_m = total_m + f_mean_ci[1,]
     total_cimin = total_cimin + f_mean_ci[2,]
