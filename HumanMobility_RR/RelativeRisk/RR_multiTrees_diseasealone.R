@@ -253,6 +253,9 @@ for (k in 1:length(tseqmax)) {
   denom_matrix = (strain_mat>tseqmax[k])
   nseq = dim(colyear_matrix)[1]
   region_vec <- names(table(GPS_GPSC_everything.Disease$Region))
+  ### multiple samples across samples from regions
+  sample_boot<-vector(mode="numeric",length=20)
+  for (sb in 1:20){
       selectedSeqs=NULL
       for (i in 1:length(region_vec)) {
         a <- which(vector_region==region_vec[i] )
@@ -263,8 +266,12 @@ for (k in 1:length(tseqmax)) {
       tmp = sample(selectedSeqs, replace = T)
     rr =neighbor_cont_bootstrap(x=sa_row,y=tmp,geo_matrix=geo_matrix, colyear_matrix=colyear_matrix, strain_matrix=strain_matrix, gpsc_matrix=gpsc_matrix,denom_matrix=denom_matrix)
     # boot.out[,j] = rr
+    sample_boot[sb]<-rr
+  }
     print(k)
-    tseq_out[,k]<-rr
+    # tseq_out[,k]<-rr
+    tseq_out[,k]<-mean(sample_boot)
+    
     # print(j)
 }
 
