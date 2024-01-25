@@ -1,8 +1,5 @@
-############################################################################################
-## Fit mode GPSC-sero, with VT fitness
-## Noemie Lefrancq
-## Last update 28/09/2023
-############################################################################################
+## MCMC fitness
+## By country, by genotype 
 library(questionr)
 library(treeio)
 library(ape)
@@ -13,16 +10,13 @@ library(gtable)
 library(doParallel)  
 rstan_options(auto_write = TRUE)
 
-############################################################################################
-## Set wd
-############################################################################################
 setwd('geomig_evo_pneumo/Fitness/4_run_model/GPSC-serotypes/Fit_with_sero_fitness/')
-
-############# Model
-model.MCMC <- stan_model(file = '../../../3_model/GPSC-serotypes/Model_fitness_GPSC-sero_pairs_2p_vaccineintro_switch_inputfitness_fit_onlprevax.stan')
+# 
+############# R(t) model
+model.MCMC <- stan_model(file = '../../3_model/Model_fitness_GPSC-sero_pairs_2p_vaccineintro_switch_per_vax_inputfitness_fit_onlprevax.stan')
 
 ############# data for MCMC ######################################################
-data.MCMC = readRDS('../../../2_processed_data/GPSC-serotypes/Data_model_GPSC-sero_12092023_ref_NVT_GPSC_52_13_inputfitnessVT.rds')
+data.MCMC = readRDS('../../2_processed_data/Data_model_GPSC-sero_23012024_ref_NVT_GPSC_52_13_inputfitnessVT.rds')
 
 ############# parameters vaccination #############################################
 data.MCMC$R_every_pre_vacc = 12
@@ -36,6 +30,7 @@ data.MCMC$yearF0 = rep(1, data.MCMC$nb_countries)
   
 ## ACV introduction (vector of length countries)
 data.MCMC$yearIntroduction = data.MCMC$vaccine_introduction
+data.MCMC$number_introductions = 2
 
 ##################################################################################
 ## Run MCMC 
@@ -51,7 +46,7 @@ foreach(i = 1:3)  %dopar% {
   fit_delay <- sampling(model.MCMC, data = data.MCMC,
                         show_messages = TRUE,
                         chains = 1, cores = 1,iter= 2000, chain_id = i,
-                        control = list(adapt_delta = 0.98, max_treedepth = 13))  # iter =10000 et plus de chaines
+                        control = list(adapt_delta = 0.98, max_treedepth = 13))  # iter =10000 et plus de chainesold
   fit = list(fit=fit_delay,
              data= data.MCMC)
   Chains=rstan::extract(fit$fit)

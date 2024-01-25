@@ -11,7 +11,6 @@ library(doParallel)
 rstan_options(auto_write = TRUE)
 
 ############# R(t) model
-# setwd('/Users/noemielefrancq/Documents/Project_fitness_Strep_Pneumo/SPneumoMobility/Fitness/NVT_PCV7_PCV13_dynamics/per_province_NVT_PCV7_PCV13_testswicth/')
 model.MCMC <- stan_model(file = '../3_model/Model_fitness_PCV_no_switch.stan')
 
 ############# data for MCMC ######################################################

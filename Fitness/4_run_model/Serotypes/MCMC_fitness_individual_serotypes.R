@@ -11,11 +11,10 @@ library(doParallel)
 rstan_options(auto_write = TRUE)
 
 ############# R(t) model
-setwd('./Fitness/')
-model.MCMC <- stan_model(file = './3_model/Serotypes/Model_fitness_individual_serotypes_2p_vaccineintro_switch_11082022.stan')
+model.MCMC <- stan_model(file = '../3_model/Model_fitness_individual_serotypes_2p_vaccineintro_switch_per_vax_23012024.stan')
 
 ############# data for MCMC ######################################################
-data.MCMC = readRDS('./2_processed_data/Serotypes/Data_model_individual_serotypes_11082022_ref_13NVT.rds')
+data.MCMC = readRDS('../2_processed_data/Data_model_individual_serotypes_23012024_ref_13NVT.rds')
 
 ############# parameters vaccination #############################################
 data.MCMC$R_every_pre_vacc = 12
@@ -28,8 +27,8 @@ data.MCMC$number_R_post_vacc = 1;
 data.MCMC$yearF0 = rep(1, data.MCMC$nb_countries)
 
 ## ACV introduction (vector of length countries)
+data.MCMC$number_introductions = 2
 data.MCMC$yearIntroduction = data.MCMC$vaccine_introduction + 0 ## Best model 
-
 
 f0_init = function(nb_countries, nb_geno){
   res = matrix(0, ncol = nb_geno, nrow = nb_countries)
@@ -50,7 +49,7 @@ cl = makeCluster(no_cores)
 # seed = 123
 # print(paste0('seed = ', seed))
 
-name_file = './4_run_model/Serotypes/output/Output_individual_serotypes_swicth2009'
+name_file = 'Output_individual_serotypes_swicth2009'
 print(name_file)
 
 foreach(i = 1:3)  %dopar% {

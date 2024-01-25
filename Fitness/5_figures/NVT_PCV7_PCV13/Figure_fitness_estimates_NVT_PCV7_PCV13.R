@@ -4,18 +4,10 @@ library(rstan)
 library(RColorBrewer)
 library(binom)
 
-<<<<<<< HEAD:Fitness/NVT_PCV7_PCV13_dynamics/Figures/Figure_fitness_estimates_NVT_PCV7_PCV13.R
-# setwd('/Users/noemielefrancq/Documents/Project_fitness_Strep_Pneumo/SPneumoMobility/Fitness/NVT_PCV7_PCV13_dynamics/')
-setwd('/Users/sb62/Documents/Migration/SA_Migration_110422/Fitness/RunModel/VaccineStatus/NVTPCV7PCV13_2009_NCMJL/')
-
-## Load fit
-fit = readRDS(file = 'Output_per_provice_NVT_PCV7_PCV13_swicth2009_plus0_fit_all.rds')
-=======
 setwd('/Users/noemielefrancq/Documents/Project_fitness_Strep_Pneumo/SPneumoMobility/Fitness/fitness_clean_NL/')
 
 ## Load fit
-fit = readRDS(file = '4_1_per_province_NVT_PCV7_PCV13_testswicth/Output_per_provice_NVT_PCV7_PCV13_swicth2009_plus0_fit_all.rds')
->>>>>>> 144ca1acc0c6ed051e0227cf534ac0daff9c7890:Fitness/fitness_clean_NL/5_figures/Figure_fitness_estimates_NVT_PCV7_PCV13.R
+fit = readRDS(file = '4_1_per_province_NVT_PCV7_PCV13_testswicth/test_shift_delay_22012024/Output_per_provice_NVT_PCV7_PCV13_swicthes2009and2011_1pervax_plus0_fit_all.rds')
 
 ## Chains
 Chains=rstan::extract(fit$fit)
@@ -63,37 +55,40 @@ Genotype = c('PCV7', 'PCV13')
 df_overall_fitness = data.frame('Values' = NA,
                                 'Time' = NA,
                                 'Genotype' = NA)
+yearF0 = fit$data$yearF0_PCV7
+vaccinationPCV7 = fit$data$yearIntroduction_PCV7
+vaccinationPCV13 = fit$data$yearIntroduction_PCV13
 
-vaccinationACV = fit$data$yearIntroduction
-vaccinationWCV = fit$data$yearF0
-# mean_freq2=rep(1,3000)
 for(k in 1:nb_countries){
   ## Compute reference fitness first:
   ## pre vacc
   mat_tmp = matrix(NA, ncol =  fit$data$nb_genotypes, nrow = nb_chains*length_vect_fitness_pre_vacc)
-  vacc_ACV_k = vaccinationACV[k]
-  vacc_WCV_k = vaccinationWCV[k]
-  if(vacc_ACV_k>=nb_years) vacc_ACV_k = nb_years-1;
-  if(vacc_WCV_k<=0) vacc_WCV_k = 1;
-  if(vacc_WCV_k == (vacc_ACV_k-1)) vacc_WCV_k = vacc_ACV_k-2;
-  if(vacc_WCV_k >= (vacc_ACV_k)) vacc_WCV_k = vacc_ACV_k-2;
+  yearF0_k = yearF0[k]
+  vacc_PCV7_k = vaccinationPCV7[k]
+  vacc_PCV13_k = vaccinationPCV13[k]
   for(gref in 1:(nb_genotypes-1)){
-    for(i in 1:length_vect_fitness_pre_vacc){
-      mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = rep(0, nb_chains)-as.vector(Chains$fitness_genotypes_pre_vacc[,gref,i])
-      mean_freq = Chains$pred_absolute_freq[,k,gref, vacc_WCV_k:(vacc_ACV_k-1)]
-      mean_freq = apply(mean_freq, MARGIN = 1, mean)
-      mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),gref] * mean_freq
-      # mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),gref] * mean_freq2
-      
+    if(gref == 1){
+      for(i in 1){
+        mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = rep(0, nb_chains)-as.vector(Chains$fitness_genotypes_pre_vacc_PCV7[,1,i])
+        mean_freq = Chains$pred_absolute_freq[,k,gref, yearF0_k:(vacc_PCV7_k-1)]
+        mean_freq = apply(mean_freq, MARGIN = 1, mean)
+        mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),gref] * mean_freq
+      }
+    }
+    if(gref == 2){
+      for(i in 1){
+        mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = rep(0, nb_chains)-as.vector(Chains$fitness_genotypes_pre_vacc_PCV13[,1,i])
+        mean_freq = Chains$pred_absolute_freq[,k,gref, yearF0_k:(vacc_PCV7_k-1)]
+        mean_freq = apply(mean_freq, MARGIN = 1, mean)
+        mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),gref] * mean_freq
+      }
     }
   }
   for(i in 1:length_vect_fitness_pre_vacc){
     mat_tmp[(1:nb_chains)+((i-1)*nb_chains),nb_genotypes] = rep(0, nb_chains)-rep(0, nb_chains)
-    mean_freq = Chains$pred_absolute_freq[,k,nb_genotypes,vacc_WCV_k:(vacc_ACV_k-1)]
+    mean_freq = Chains$pred_absolute_freq[,k,nb_genotypes,yearF0_k:(vacc_PCV7_k-1)]
     mean_freq = apply(mean_freq, MARGIN = 1, mean)
     mat_tmp[(1:nb_chains)+((i-1)*nb_chains),nb_genotypes] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),nb_genotypes] * mean_freq
-    # mat_tmp[(1:nb_chains)+((i-1)*nb_chains),nb_genotypes] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),nb_genotypes] * mean_freq2
-    
   }
   df_overall_fitness = rbind(df_overall_fitness, data.frame('Values' = exp(apply(mat_tmp, MARGIN = 1, sum)),
                                             'Time' = rep(-1, each = nb_chains),
@@ -101,77 +96,163 @@ for(k in 1:nb_countries){
   ## post vacc
   mat_tmp = matrix(NA, ncol =  fit$data$nb_genotypes, nrow = nb_chains*length_vect_fitness_post_vacc)
   for(gref in 1:(nb_genotypes-1)){
-    for(i in 1:length_vect_fitness_post_vacc){
-      mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] =  rep(0, nb_chains)-as.vector(Chains$fitness_genotypes_post_vacc[,gref,i])
-      mean_freq = Chains$pred_absolute_freq[,k,gref,vacc_ACV_k:nb_years]
-      mean_freq = apply(mean_freq, MARGIN = 1, mean)
-      mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),gref] * mean_freq
-      # mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),gref] * mean_freq2
+    if(gref == 1){
+      for(i in 1:length_vect_fitness_post_vacc){
+        mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] =  rep(0, nb_chains)-as.vector(Chains$fitness_genotypes_post_vacc_PCV7[,1,i])
+        mean_freq = Chains$pred_absolute_freq[,k,gref,vacc_PCV13_k:nb_years]
+        mean_freq = apply(mean_freq, MARGIN = 1, mean)
+        mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),gref] * mean_freq
+      }
+    }
+    if(gref == 2){
+      for(i in 1:length_vect_fitness_post_vacc){
+        mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] =  rep(0, nb_chains)-as.vector(Chains$fitness_genotypes_post_vacc_PCV13[,1,i])
+        mean_freq = Chains$pred_absolute_freq[,k,gref,vacc_PCV13_k:nb_years]
+        mean_freq = apply(mean_freq, MARGIN = 1, mean)
+        mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),gref] * mean_freq
+      }
     }
   }
   for(i in 1:length_vect_fitness_post_vacc){
     mat_tmp[(1:nb_chains)+((i-1)*nb_chains),nb_genotypes] =  rep(0, nb_chains)-rep(0, nb_chains)
-    mean_freq = Chains$pred_absolute_freq[,k,nb_genotypes,vacc_ACV_k:nb_years]
+    mean_freq = Chains$pred_absolute_freq[,k,nb_genotypes,vacc_PCV13_k:nb_years]
     mean_freq = apply(mean_freq, MARGIN = 1, mean)
     mat_tmp[(1:nb_chains)+((i-1)*nb_chains),nb_genotypes] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),nb_genotypes] * mean_freq
-    # mat_tmp[(1:nb_chains)+((i-1)*nb_chains),nb_genotypes] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),nb_genotypes] * mean_freq2
-    
   }
   df_overall_fitness = rbind(df_overall_fitness, data.frame('Values' = exp(apply(mat_tmp, MARGIN = 1, sum)),
                                             'Time' = rep(1, each = nb_chains),
                                             'Genotype' = rep(ref_genotype_header, nb_chains*length_vect_fitness_post_vacc)))
+  
   for(g in 1:(nb_genotypes-1)){
-    ## pre vacc
-    mat_tmp = matrix(NA, ncol =  fit$data$nb_genotypes, nrow = nb_chains*length_vect_fitness_pre_vacc)
-    for(gref in 1:(nb_genotypes-1)){
+    if(g==1){ ## PCV7
+      ## pre vacc
+      mat_tmp = matrix(NA, ncol =  fit$data$nb_genotypes, nrow = nb_chains*length_vect_fitness_pre_vacc)
+      for(gref in 1:(nb_genotypes-1)){
+        if(gref == 1){
+          for(i in 1:length_vect_fitness_pre_vacc){
+            mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = as.vector(Chains$fitness_genotypes_pre_vacc_PCV7[,1,1])-as.vector(Chains$fitness_genotypes_pre_vacc_PCV7[,1,1])
+            mean_freq = Chains$pred_absolute_freq[,k,gref,yearF0_k:(vacc_PCV7_k-1)]
+            mean_freq = apply(mean_freq, MARGIN = 1, mean)
+            mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),gref] * mean_freq
+          }
+        }
+        if(gref == 2){
+          for(i in 1:length_vect_fitness_pre_vacc){
+            mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = as.vector(Chains$fitness_genotypes_pre_vacc_PCV7[,1,1])-as.vector(Chains$fitness_genotypes_pre_vacc_PCV13[,1,1])
+            mean_freq = Chains$pred_absolute_freq[,k,gref,yearF0_k:(vacc_PCV7_k-1)]
+            mean_freq = apply(mean_freq, MARGIN = 1, mean)
+            mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),gref] * mean_freq
+          }
+        }
+      }
       for(i in 1:length_vect_fitness_pre_vacc){
-        mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = as.vector(Chains$fitness_genotypes_pre_vacc[,g,i])-as.vector(Chains$fitness_genotypes_pre_vacc[,gref,i])
-        mean_freq = Chains$pred_absolute_freq[,k,gref,vacc_WCV_k:(vacc_ACV_k-1)]
+        mat_tmp[(1:nb_chains)+((i-1)*nb_chains),nb_genotypes] = as.vector(Chains$fitness_genotypes_pre_vacc_PCV7[,1,1])-rep(0, nb_chains)
+        mean_freq = Chains$pred_absolute_freq[,k,nb_genotypes,yearF0_k:(vacc_PCV7_k-1)]
         mean_freq = apply(mean_freq, MARGIN = 1, mean)
-        mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),gref] * mean_freq
-        # mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),gref] * mean_freq2
-        
+        mat_tmp[(1:nb_chains)+((i-1)*nb_chains),nb_genotypes] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),nb_genotypes] * mean_freq
       }
-    }
-    for(i in 1:length_vect_fitness_pre_vacc){
-      mat_tmp[(1:nb_chains)+((i-1)*nb_chains),nb_genotypes] = as.vector(Chains$fitness_genotypes_pre_vacc[,g,i])-rep(0, nb_chains)
-      mean_freq = Chains$pred_absolute_freq[,k,nb_genotypes,vacc_WCV_k:(vacc_ACV_k-1)]
-      mean_freq = apply(mean_freq, MARGIN = 1, mean)
-      mat_tmp[(1:nb_chains)+((i-1)*nb_chains),nb_genotypes] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),nb_genotypes] * mean_freq
-      # mat_tmp[(1:nb_chains)+((i-1)*nb_chains),nb_genotypes] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),nb_genotypes] * mean_freq2
+      df_overall_fitness = rbind(df_overall_fitness, data.frame('Values' = exp(apply(mat_tmp, MARGIN = 1, sum)),
+                                                                'Time' = rep(-1, each = nb_chains),
+                                                                'Genotype' = rep(Genotype[g], nb_chains*length_vect_fitness_post_vacc)))
       
-    }
-    df_overall_fitness = rbind(df_overall_fitness, data.frame('Values' = exp(apply(mat_tmp, MARGIN = 1, sum)),
-                                              'Time' = rep(-1, each = nb_chains),
-                                              'Genotype' = rep(Genotype[g], nb_chains*length_vect_fitness_post_vacc)))
-    
-    ## post vacc
-    mat_tmp = matrix(NA, ncol =  fit$data$nb_genotypes, nrow = nb_chains*length_vect_fitness_post_vacc)
-    for(gref in 1:(nb_genotypes-1)){
-      for(i in 1:length_vect_fitness_post_vacc){
-        mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = as.vector(Chains$fitness_genotypes_post_vacc[,g,i])-as.vector(Chains$fitness_genotypes_post_vacc[,gref,i])
-        mean_freq = Chains$pred_absolute_freq[,k,gref,vacc_ACV_k:nb_years]
-        mean_freq = apply(mean_freq, MARGIN = 1, mean)
-        mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),gref] * mean_freq
-        # mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),gref] * mean_freq2
+      ## post vacc
+      mat_tmp = matrix(NA, ncol =  fit$data$nb_genotypes, nrow = nb_chains*length_vect_fitness_post_vacc)
+      for(gref in 1:(nb_genotypes-1)){
+        if(gref == 1){
+          for(i in 1:length_vect_fitness_post_vacc){
+            mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = as.vector(Chains$fitness_genotypes_post_vacc_PCV7[,1,1])-as.vector(Chains$fitness_genotypes_post_vacc_PCV7[,1,1])
+            mean_freq = Chains$pred_absolute_freq[,k,gref,vacc_PCV7_k:nb_years]
+            mean_freq = apply(mean_freq, MARGIN = 1, mean)
+            mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),gref] * mean_freq
+          }
+        }
+        if(gref == 2){
+          for(i in 1:length_vect_fitness_post_vacc){
+            mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = as.vector(Chains$fitness_genotypes_post_vacc_PCV7[,1,1])-as.vector(Chains$fitness_genotypes_post_vacc_PCV13[,1,1])
+            mean_freq = Chains$pred_absolute_freq[,k,gref,vacc_PCV7_k:nb_years]
+            mean_freq = apply(mean_freq, MARGIN = 1, mean)
+            mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),gref] * mean_freq
+          }
+        }
       }
+      for(i in 1:length_vect_fitness_post_vacc){
+        mat_tmp[(1:nb_chains)+((i-1)*nb_chains),nb_genotypes] = as.vector(Chains$fitness_genotypes_post_vacc_PCV7[,1,1])-rep(0, nb_chains)
+        mean_freq = Chains$pred_absolute_freq[,k,nb_genotypes,vacc_PCV7_k:nb_years]
+        mean_freq = apply(mean_freq, MARGIN = 1, mean)
+        mat_tmp[(1:nb_chains)+((i-1)*nb_chains),nb_genotypes] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),nb_genotypes] * mean_freq
+      }
+      df_overall_fitness = rbind(df_overall_fitness, data.frame('Values' = exp(apply(mat_tmp, MARGIN = 1, sum)),
+                                                                'Time' = rep(1, each = nb_chains),
+                                                                'Genotype' = rep(Genotype[g], nb_chains*length_vect_fitness_post_vacc)))
     }
-    for(i in 1:length_vect_fitness_post_vacc){
-      mat_tmp[(1:nb_chains)+((i-1)*nb_chains),nb_genotypes] = as.vector(Chains$fitness_genotypes_post_vacc[,g,i])-rep(0, nb_chains)
-      mean_freq = Chains$pred_absolute_freq[,k,nb_genotypes,vacc_ACV_k:nb_years]
-      mean_freq = apply(mean_freq, MARGIN = 1, mean)
-      mat_tmp[(1:nb_chains)+((i-1)*nb_chains),nb_genotypes] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),nb_genotypes] * mean_freq
-      # mat_tmp[(1:nb_chains)+((i-1)*nb_chains),nb_genotypes] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),nb_genotypes] * mean_freq2
+    if(g==2){ ## PCV13
+      ## pre vacc
+      mat_tmp = matrix(NA, ncol =  fit$data$nb_genotypes, nrow = nb_chains*length_vect_fitness_pre_vacc)
+      for(gref in 1:(nb_genotypes-1)){
+        if(gref == 1){
+          for(i in 1:length_vect_fitness_pre_vacc){
+            mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = as.vector(Chains$fitness_genotypes_pre_vacc_PCV13[,1,1])-as.vector(Chains$fitness_genotypes_pre_vacc_PCV7[,1,1])
+            mean_freq = Chains$pred_absolute_freq[,k,gref,yearF0_k:(vacc_PCV13_k-1)]
+            mean_freq = apply(mean_freq, MARGIN = 1, mean)
+            mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),gref] * mean_freq
+          }
+        }
+        if(gref == 2){
+          for(i in 1:length_vect_fitness_pre_vacc){
+            mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = as.vector(Chains$fitness_genotypes_pre_vacc_PCV13[,1,1])-as.vector(Chains$fitness_genotypes_pre_vacc_PCV13[,1,1])
+            mean_freq = Chains$pred_absolute_freq[,k,gref,yearF0_k:(vacc_PCV13_k-1)]
+            mean_freq = apply(mean_freq, MARGIN = 1, mean)
+            mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),gref] * mean_freq
+          }
+        }
+      }
+      for(i in 1:length_vect_fitness_pre_vacc){
+        mat_tmp[(1:nb_chains)+((i-1)*nb_chains),nb_genotypes] = as.vector(Chains$fitness_genotypes_pre_vacc_PCV13[,1,1])-rep(0, nb_chains)
+        mean_freq = Chains$pred_absolute_freq[,k,nb_genotypes,yearF0_k:(vacc_PCV13_k-1)]
+        mean_freq = apply(mean_freq, MARGIN = 1, mean)
+        mat_tmp[(1:nb_chains)+((i-1)*nb_chains),nb_genotypes] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),nb_genotypes] * mean_freq
+      }
+      df_overall_fitness = rbind(df_overall_fitness, data.frame('Values' = exp(apply(mat_tmp, MARGIN = 1, sum)),
+                                                                'Time' = rep(-1, each = nb_chains),
+                                                                'Genotype' = rep(Genotype[g], nb_chains*length_vect_fitness_post_vacc)))
+      
+      ## post vacc
+      mat_tmp = matrix(NA, ncol =  fit$data$nb_genotypes, nrow = nb_chains*length_vect_fitness_post_vacc)
+      for(gref in 1:(nb_genotypes-1)){
+        if(gref == 1){
+          for(i in 1:length_vect_fitness_post_vacc){
+            mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = as.vector(Chains$fitness_genotypes_post_vacc_PCV13[,1,1])-as.vector(Chains$fitness_genotypes_post_vacc_PCV7[,1,1])
+            mean_freq = Chains$pred_absolute_freq[,k,gref,vacc_PCV13_k:nb_years]
+            mean_freq = apply(mean_freq, MARGIN = 1, mean)
+            mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),gref] * mean_freq
+          }
+        }
+        if(gref == 2){
+          for(i in 1:length_vect_fitness_post_vacc){
+            mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = as.vector(Chains$fitness_genotypes_post_vacc_PCV13[,1,1])-as.vector(Chains$fitness_genotypes_post_vacc_PCV13[,1,1])
+            mean_freq = Chains$pred_absolute_freq[,k,gref,vacc_PCV13_k:nb_years]
+            mean_freq = apply(mean_freq, MARGIN = 1, mean)
+            mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),gref] * mean_freq
+          }
+        }
+      }
+      for(i in 1:length_vect_fitness_post_vacc){
+        mat_tmp[(1:nb_chains)+((i-1)*nb_chains),nb_genotypes] = as.vector(Chains$fitness_genotypes_post_vacc_PCV13[,1,1])-rep(0, nb_chains)
+        mean_freq = Chains$pred_absolute_freq[,k,nb_genotypes,vacc_PCV13_k:nb_years]
+        mean_freq = apply(mean_freq, MARGIN = 1, mean)
+        mat_tmp[(1:nb_chains)+((i-1)*nb_chains),nb_genotypes] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),nb_genotypes] * mean_freq
+      }
+      df_overall_fitness = rbind(df_overall_fitness, data.frame('Values' = exp(apply(mat_tmp, MARGIN = 1, sum)),
+                                                                'Time' = rep(1, each = nb_chains),
+                                                                'Genotype' = rep(Genotype[g], nb_chains*length_vect_fitness_post_vacc)))
     }
-    df_overall_fitness = rbind(df_overall_fitness, data.frame('Values' = exp(apply(mat_tmp, MARGIN = 1, sum)),
-                                              'Time' = rep(1, each = nb_chains),
-                                              'Genotype' = rep(Genotype[g], nb_chains*length_vect_fitness_post_vacc)))
   }
 }
 
 df_overall_fitness = df_overall_fitness[-1,] ## Remove the NA from the beginning
 
-# saveRDS(df_overall_fitness, 'Data_plot_per_VT_12082022.rds')
+saveRDS(df_overall_fitness, 'Data_plot_per_VT_22012024.rds')
+
 ################################################################################
 ## Set directory
 ################################################################################
@@ -180,7 +261,7 @@ setwd('/Users/noemielefrancq/Documents/Project_fitness_Strep_Pneumo/SPneumoMobil
 ################################################################################
 ## Fitness, per vaccine type, per vaccine era (1 switch in 2009)
 ################################################################################
-# pdf(file = 'Figure_fitness_estimates_NVT_PCV7_PCV13_12082022.pdf', width = 9/2.54, height = 6/2.54)
+pdf(file = 'Figure_fitness_estimates_NVT_PCV7_PCV13_22012024.pdf', width = 9/2.54, height = 6/2.54)
 df_overall_fitness$Genotype = factor(df_overall_fitness$Genotype, levels = c('NVT', 'PCV7', 'PCV13'))
 ################################################################################
 library(ggplot2)
@@ -212,7 +293,7 @@ ACV = ggplot(df_overall_fitness, aes(x = Time, y=Values, color = Genotype)) +
         panel.grid.minor = element_blank(),
         legend.position = "none")
 ACV
-# dev.off()
+dev.off()
 ################################################################################
 
 ################################################################################
@@ -246,7 +327,7 @@ res_cimax = data.frame('seroype' = c('NVT', 'PCV7', 'PCV13'),
                        'Fitness_2010-2015' = c(paste0(round(mean.and.ci(df_overall_fitness$Values[which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'NVT')])[3], digits = 2), collapse =  '-'),
                                                paste0(round(mean.and.ci(df_overall_fitness$Values[which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'PCV7')])[3], digits = 2), collapse =  '-'),
                                                paste0(round(mean.and.ci(df_overall_fitness$Values[which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'PCV13')])[3], digits = 2), collapse =  '-')))
-# saveRDS(list(res_mean, res_cimin, res_cimax), 'Fitness_estimates_NVT_PCV7_PCV13_swicth2009_plus0.rds')
+saveRDS(list(res_mean, res_cimin, res_cimax), 'Fitness_estimates_NVT_PCV7_PCV13_swicth2009_plus0.rds')
 ################################################################################
 
 
@@ -260,40 +341,37 @@ mean_freq_PCV7_post = NULL
 mean_freq_PCV13_pre = NULL
 mean_freq_PCV13_post = NULL
 for(k in 1:nb_countries){
-  mean_freq = Chains$pred_absolute_freq[,k,1,vacc_WCV_k:(vacc_ACV_k-1)]
+  mean_freq = Chains$pred_absolute_freq[,k,1,vacc_WCV_k:(yearF0_k-1)]
   mean_freq = apply(mean_freq, MARGIN = 1, mean)
   mean_freq_PCV7_pre = c(mean_freq_PCV7_pre, mean_freq)
   
-  mean_freq = Chains$pred_absolute_freq[,k,1,vacc_ACV_k:nb_years]
+  mean_freq = Chains$pred_absolute_freq[,k,1,yearF0_k:nb_years]
   mean_freq = apply(mean_freq, MARGIN = 1, mean)
   mean_freq_PCV7_post = c(mean_freq_PCV7_post, mean_freq)
 
-  mean_freq = Chains$pred_absolute_freq[,k,2,vacc_WCV_k:(vacc_ACV_k-1)]
+  mean_freq = Chains$pred_absolute_freq[,k,2,vacc_WCV_k:(yearF0_k-1)]
   mean_freq = apply(mean_freq, MARGIN = 1, mean)
   mean_freq_PCV13_pre = c(mean_freq_PCV13_pre, mean_freq)
   
-  mean_freq = Chains$pred_absolute_freq[,k,2,vacc_ACV_k:nb_years]
+  mean_freq = Chains$pred_absolute_freq[,k,2,yearF0_k:nb_years]
   mean_freq = apply(mean_freq, MARGIN = 1, mean)
   mean_freq_PCV13_post = c(mean_freq_PCV13_post, mean_freq)
 }
 fitness_VT_pre = df_overall_fitness$Values[which(df_overall_fitness$Time == '-1' & df_overall_fitness$Genotype == 'PCV7')]*mean_freq_PCV7_pre/(mean_freq_PCV7_pre+mean_freq_PCV13_pre) +
   df_overall_fitness$Values[which(df_overall_fitness$Time == '-1' & df_overall_fitness$Genotype == 'PCV13')]*mean_freq_PCV13_pre/(mean_freq_PCV7_pre+mean_freq_PCV13_pre)
-
 fitness_VT_post = df_overall_fitness$Values[which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'PCV7')]*mean_freq_PCV7_post/(mean_freq_PCV7_post+mean_freq_PCV13_post) +
   df_overall_fitness$Values[which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'PCV13')]*mean_freq_PCV13_post/(mean_freq_PCV7_post+mean_freq_PCV13_post)
-
 fitness_NVT_post = df_overall_fitness$Values[which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'NVT')]
-
 fitness_NVT_pre = df_overall_fitness$Values[which(df_overall_fitness$Time == '-1' & df_overall_fitness$Genotype == 'NVT')]
 
 mean.and.ci(fitness_VT_post)
 mean.and.ci(fitness_NVT_post)
 mean.and.ci(exp(log(fitness_VT_post)*35/365))
-mean.and.ci(exp(log(fitness_NVT_post/fitness_VT_post)*35/365))
+mean.and.ci(exp(log(fitness_NVT_post)*35/365))
 mean.and.ci(fitness_NVT_post/fitness_VT_post)
 
 
 mean.and.ci(fitness_VT_post/fitness_VT_pre)
 mean.and.ci(fitness_NVT_post/fitness_NVT_pre)
-mean.and.ci(fitness_NVT_pre)
+
 

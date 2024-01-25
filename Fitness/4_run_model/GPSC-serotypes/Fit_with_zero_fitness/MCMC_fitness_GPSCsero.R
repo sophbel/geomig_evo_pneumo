@@ -1,8 +1,5 @@
-############################################################################################
-## Fit mode GPSC-sero, with no fitness
-## Noemie Lefrancq
-## Last update 28/09/2023
-############################################################################################
+## MCMC fitness
+## By country, by genotype 
 library(questionr)
 library(treeio)
 library(ape)
@@ -13,16 +10,13 @@ library(gtable)
 library(doParallel)  
 rstan_options(auto_write = TRUE)
 
-############################################################################################
-## Set wd
-############################################################################################
 setwd('geomig_evo_pneumo/Fitness/4_run_model/GPSC-serotypes/Fit_with_sero_fitness/')
 
-############# Model
-model.MCMC <- stan_model(file = '../../../3_model/GPSC-serotypes/Model_fitness_GPSC-sero_pairs_2p_vaccineintro_switch_inputfitness_fit_onlprevax.stan')
+############# R(t) model
+model.MCMC <- stan_model(file = '../../3_model/Model_fitness_GPSC-sero_pairs_2p_vaccineintro_switch_per_vax_inputfitness_fit_onlprevax.stan')
 
 ############# data for MCMC ######################################################
-data.MCMC = readRDS('../../../2_processed_data/GPSC-serotypes/Data_model_GPSC-sero_12092023_ref_NVT_GPSC_52_13_inputfitnessZERO.rds')
+data.MCMC = readRDS('../../2_processed_data/Data_model_GPSC-sero_23012024_ref_NVT_GPSC_52_13_inputfitnessZERO.rds')
 
 ############# parameters vaccination #############################################
 data.MCMC$R_every_pre_vacc = 12
@@ -36,6 +30,7 @@ data.MCMC$yearF0 = rep(1, data.MCMC$nb_countries)
   
 ## ACV introduction (vector of length countries)
 data.MCMC$yearIntroduction = data.MCMC$vaccine_introduction
+data.MCMC$number_introductions = 2
 
 ##################################################################################
 ## Run MCMC 
