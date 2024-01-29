@@ -3,6 +3,7 @@
 library(rstan)
 library(RColorBrewer)
 library(binom)
+library(ggplot2)
 
 # setwd('/Users/noemielefrancq/Documents/Project_fitness_Strep_Pneumo/SPneumoMobility/Fitness/fitness_clean_NL/')
 
@@ -49,9 +50,6 @@ ref_genotype = 1
 ref_genotype_header = 'NVT'
 Genotype = c('PCV7', 'PCV13')
 
-# ref_genotype_header = '1'
-# Genotype = rownames(clade_sero_list[[1]])[-1]
-
 df_overall_fitness = data.frame('Values' = NA,
                                 'Time' = NA,
                                 'Genotype' = NA)
@@ -91,15 +89,15 @@ for(k in 1:nb_countries){
     mat_tmp[(1:nb_chains)+((i-1)*nb_chains),nb_genotypes] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),nb_genotypes] * mean_freq
   }
   df_overall_fitness = rbind(df_overall_fitness, data.frame('Values' = exp(apply(mat_tmp, MARGIN = 1, sum)),
-                                            'Time' = rep(-1, each = nb_chains),
-                                            'Genotype' = rep(ref_genotype_header, nb_chains*length_vect_fitness_post_vacc)))
+                                                            'Time' = rep(-1, each = nb_chains),
+                                                            'Genotype' = rep(ref_genotype_header, nb_chains*length_vect_fitness_post_vacc)))
   ## post vacc
   mat_tmp = matrix(NA, ncol =  fit$data$nb_genotypes, nrow = nb_chains*length_vect_fitness_post_vacc)
   for(gref in 1:(nb_genotypes-1)){
     if(gref == 1){
       for(i in 1:length_vect_fitness_post_vacc){
         mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] =  rep(0, nb_chains)-as.vector(Chains$fitness_genotypes_post_vacc_PCV7[,1,i])
-        mean_freq = Chains$pred_absolute_freq[,k,gref,vacc_PCV13_k:nb_years]
+        mean_freq = Chains$pred_absolute_freq[,k,gref,vacc_PCV7_k:nb_years]
         mean_freq = apply(mean_freq, MARGIN = 1, mean)
         mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),gref] * mean_freq
       }
@@ -107,7 +105,7 @@ for(k in 1:nb_countries){
     if(gref == 2){
       for(i in 1:length_vect_fitness_post_vacc){
         mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] =  rep(0, nb_chains)-as.vector(Chains$fitness_genotypes_post_vacc_PCV13[,1,i])
-        mean_freq = Chains$pred_absolute_freq[,k,gref,vacc_PCV13_k:nb_years]
+        mean_freq = Chains$pred_absolute_freq[,k,gref,vacc_PCV7_k:nb_years]
         mean_freq = apply(mean_freq, MARGIN = 1, mean)
         mat_tmp[(1:nb_chains)+((i-1)*nb_chains),gref] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),gref] * mean_freq
       }
@@ -115,13 +113,13 @@ for(k in 1:nb_countries){
   }
   for(i in 1:length_vect_fitness_post_vacc){
     mat_tmp[(1:nb_chains)+((i-1)*nb_chains),nb_genotypes] =  rep(0, nb_chains)-rep(0, nb_chains)
-    mean_freq = Chains$pred_absolute_freq[,k,nb_genotypes,vacc_PCV13_k:nb_years]
+    mean_freq = Chains$pred_absolute_freq[,k,nb_genotypes,vacc_PCV7_k:nb_years]
     mean_freq = apply(mean_freq, MARGIN = 1, mean)
     mat_tmp[(1:nb_chains)+((i-1)*nb_chains),nb_genotypes] = mat_tmp[(1:nb_chains)+((1-1)*nb_chains),nb_genotypes] * mean_freq
   }
   df_overall_fitness = rbind(df_overall_fitness, data.frame('Values' = exp(apply(mat_tmp, MARGIN = 1, sum)),
-                                            'Time' = rep(1, each = nb_chains),
-                                            'Genotype' = rep(ref_genotype_header, nb_chains*length_vect_fitness_post_vacc)))
+                                                            'Time' = rep(1, each = nb_chains),
+                                                            'Genotype' = rep(ref_genotype_header, nb_chains*length_vect_fitness_post_vacc)))
   
   for(g in 1:(nb_genotypes-1)){
     if(g==1){ ## PCV7
@@ -251,20 +249,146 @@ for(k in 1:nb_countries){
 
 df_overall_fitness = df_overall_fitness[-1,] ## Remove the NA from the beginning
 
+<<<<<<< HEAD
 saveRDS(df_overall_fitness, '4_run_model/NVT_PCV7_PCV13/output/Data_plot_per_VT_22012024.rds')
+=======
+saveRDS(df_overall_fitness, 'Data_plot_per_VT_22012024.rds')
+################################################################################
+>>>>>>> 1cb83cf55efc3521df564aa14d95204b1632f94e
 
 ################################################################################
-## Set directory
+## Compute relative fitness of each VT, compared to NVT, pre and post PCV
+################################################################################
+df_relative_fitness_vs_NVT = data.frame('Values' = NA,
+                                        'Type' = NA,
+                                        'Time' = NA)
+
+a = which(df_overall_fitness$Time == '-1' & df_overall_fitness$Genotype == 'NVT')
+b = which(df_overall_fitness$Time == '-1' & df_overall_fitness$Genotype == 'PCV13')
+c = which(df_overall_fitness$Time == '-1' & df_overall_fitness$Genotype == 'PCV7')
+df_relative_fitness_vs_NVT = rbind(df_relative_fitness_vs_NVT, data.frame('Values' = df_overall_fitness$Values[a]/df_overall_fitness$Values[a],
+                                                                          'Type' = rep('NVT', length(a)),
+                                                                          'Time' = rep('Pre-PCV', length(a))))
+df_relative_fitness_vs_NVT = rbind(df_relative_fitness_vs_NVT, data.frame('Values' = df_overall_fitness$Values[b]/df_overall_fitness$Values[a],
+                                                                          'Type' = rep('PCV7', nb_chains),
+                                                                          'Time' = rep('Pre-PCV', length(a))))
+df_relative_fitness_vs_NVT = rbind(df_relative_fitness_vs_NVT, data.frame('Values' = df_overall_fitness$Values[c]/df_overall_fitness$Values[a],
+                                                                          'Type' = rep('PCV13', nb_chains),
+                                                                          'Time' = rep('Pre-PCV', length(a))))
+
+a = which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'NVT')
+b = which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'PCV13')
+c = which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'PCV7')
+df_relative_fitness_vs_NVT = rbind(df_relative_fitness_vs_NVT, data.frame('Values' = df_overall_fitness$Values[a]/df_overall_fitness$Values[a],
+                                                                          'Type' = rep('NVT', length(a)),
+                                                                          'Time' = rep('Post-PCV', length(a))))
+df_relative_fitness_vs_NVT = rbind(df_relative_fitness_vs_NVT, data.frame('Values' = df_overall_fitness$Values[b]/df_overall_fitness$Values[a],
+                                                                          'Type' = rep('PCV7', length(a)),
+                                                                          'Time' = rep('Post-PCV', length(a))))
+df_relative_fitness_vs_NVT = rbind(df_relative_fitness_vs_NVT, data.frame('Values' = df_overall_fitness$Values[c]/df_overall_fitness$Values[a],
+                                                                          'Type' = rep('PCV13', length(a)),
+                                                                          'Time' = rep('Post-PCV', length(a))))
+df_relative_fitness_vs_NVT = df_relative_fitness_vs_NVT[-1,]
+################################################################################
+
+################################################################################
+## Compute efect of vaccine implementation: relative fitness of each Type after vax implementation, compared to pre implementation
+################################################################################
+df_relative_fitness_type_post_vs_pre = data.frame('Values' = NA,
+                                                  'Type' = NA,
+                                                  'Time' = NA)
+
+a = which(df_overall_fitness$Time == '-1' & df_overall_fitness$Genotype == 'NVT')
+b = which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'NVT')
+df_relative_fitness_type_post_vs_pre = rbind(df_relative_fitness_type_post_vs_pre, data.frame('Values' = df_overall_fitness$Values[a]/df_overall_fitness$Values[a],
+                                                                                              'Type' = rep('NVT', length(a)),
+                                                                                              'Time' = rep('Pre-PCV', length(a))))
+df_relative_fitness_type_post_vs_pre = rbind(df_relative_fitness_type_post_vs_pre, data.frame('Values' = df_overall_fitness$Values[b]/df_overall_fitness$Values[a],
+                                                                                              'Type' = rep('NVT', nb_chains),
+                                                                                              'Time' = rep('Post-PCV', length(a))))
+
+a = which(df_overall_fitness$Time == '-1' & df_overall_fitness$Genotype == 'PCV7')
+b = which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'PCV7')
+df_relative_fitness_type_post_vs_pre = rbind(df_relative_fitness_type_post_vs_pre, data.frame('Values' = df_overall_fitness$Values[a]/df_overall_fitness$Values[a],
+                                                                                              'Type' = rep('PCV7', length(a)),
+                                                                                              'Time' = rep('Pre-PCV', length(a))))
+df_relative_fitness_type_post_vs_pre = rbind(df_relative_fitness_type_post_vs_pre, data.frame('Values' = df_overall_fitness$Values[b]/df_overall_fitness$Values[a],
+                                                                                              'Type' = rep('PCV7', nb_chains),
+                                                                                              'Time' = rep('Post-PCV', length(a))))
+
+a = which(df_overall_fitness$Time == '-1' & df_overall_fitness$Genotype == 'PCV13')
+b = which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'PCV13')
+df_relative_fitness_type_post_vs_pre = rbind(df_relative_fitness_type_post_vs_pre, data.frame('Values' = df_overall_fitness$Values[a]/df_overall_fitness$Values[a],
+                                                                                              'Type' = rep('PCV13', length(a)),
+                                                                                              'Time' = rep('Pre-PCV', length(a))))
+df_relative_fitness_type_post_vs_pre = rbind(df_relative_fitness_type_post_vs_pre, data.frame('Values' = df_overall_fitness$Values[b]/df_overall_fitness$Values[a],
+                                                                                              'Type' = rep('PCV13', nb_chains),
+                                                                                              'Time' = rep('Post-PCV', length(a))))
+
+df_relative_fitness_type_post_vs_pre = df_relative_fitness_type_post_vs_pre[-1,]
+################################################################################
+
+
+
+################################################################################
+## Set directory to save figures
 ################################################################################
 setwd('/Users/noemielefrancq/Documents/Project_fitness_Strep_Pneumo/SPneumoMobility/Fitness/fitness_clean_NL/5_figures/')
+################################################################################
 
 ################################################################################
-## Fitness, per vaccine type, per vaccine era (1 switch in 2009)
+## Fig 4D-E Relative fitness, compared to NVT, per vaccine type, per vaccine era
+################################################################################
+pdf(file = 'Figure4DE_relative_fitness_estimates_prevax_NVT_PCV7_PCV13_22012026.pdf', width = 4, height = 3)
+df_relative_fitness_vs_NVT$Type = factor(df_relative_fitness_vs_NVT$Type, levels = c('NVT', 'PCV7', 'PCV13'))
+df_relative_fitness_vs_NVT$Time = factor(df_relative_fitness_vs_NVT$Time, levels = c('Pre-PCV', 'Post-PCV'))
+################################################################################
+p23<-ggplot(df_relative_fitness_vs_NVT,aes(x=Type,y=Values,color=Type))+
+  facet_grid(.~Time)+
+  geom_hline(yintercept = 1, linetype = "longdash", color = 'grey')+
+  stat_summary(fun.data = f2, size=3, shape=18, position = position_dodge2(width = 0.2), geom = "point")+
+  stat_summary(fun.data = f2, width=0.3, lwd = 0.5, position = position_dodge2(width = 0.2), geom = "errorbar")+ 
+  theme_classic()+
+  scale_y_continuous(trans = 'log', limits = c(0.5,1.6),
+                     breaks = c(0.1, 0.25,0.5, 1.0, 1.5, 2, 3, 10), 
+                     labels = c('<0.1', 0.25,0.5,  1.0, 1.5, 2, 3, 10))+
+  labs(title = "", x = '', y = 'Relative Fitness')+
+  scale_color_manual(name = "", values = c( 'maroon','darkblue', 'darkgreen'))+
+  theme(axis.text=element_text(size=20),axis.text.x=element_text(angle=45,vjust=0.6),axis.title = element_text(size=20),
+        strip.text.x = element_text(size = 20, colour = "black", angle = 0),legend.position = "none")
+p23
+dev.off()
+################################################################################
+
+################################################################################
+## Fig 4F Relative fitness of each Type after vax implementation, compared to pre implementation
+################################################################################
+pdf(file = 'Figure4F_relative_fitness_estimates_post_vs_prevax_NVT_PCV7_PCV13_22012026.pdf', width = 4, height = 3)
+df_relative_fitness_type_post_vs_pre$Type = factor(df_relative_fitness_type_post_vs_pre$Type, levels = c('NVT', 'PCV7', 'PCV13'))
+df_relative_fitness_type_post_vs_pre$Time = factor(df_relative_fitness_type_post_vs_pre$Time, levels = c('Pre-PCV', 'Post-PCV'))
+################################################################################
+p4<-ggplot(df_relative_fitness_type_post_vs_pre,aes(x=Time,y=Values,color=Type))+
+  facet_grid(.~Type)+
+  geom_hline(yintercept = 1, linetype = "longdash", color = 'grey')+
+  stat_summary(fun.data = f2, size=3, shape=18, position = position_dodge2(width = 0.2), geom = "point")+
+  stat_summary(fun.data = f2, width=0.3, lwd = 0.5, position = position_dodge2(width = 0.2), geom = "errorbar")+ 
+  theme_classic()+
+  scale_y_continuous(trans = 'log', limits = c(0.5,1.6),
+                     breaks = c(0.1, 0.25,0.5,  1.0, 1.5, 2, 3, 10), 
+                     labels = c('<0.1', 0.25,0.5,  1.0, 1.5, 2, 3, 10))+
+  labs(title = "", x = '', y = 'RelativeFitness')+
+  scale_color_manual(name = "", values = c( 'maroon','darkblue', 'darkgreen'))+
+  theme(axis.text=element_text(size=20),axis.text.x=element_text(angle=45,vjust=0.6),axis.title = element_text(size=20),
+        strip.text.x = element_text(size = 20, colour = "black", angle = 0),legend.position = "none")
+p4
+dev.off()
+################################################################################
+
+################################################################################
+## Fitness, per vaccine type, per vaccine era (NOT IN FUGURE 4!)
 ################################################################################
 pdf(file = 'Figure_fitness_estimates_NVT_PCV7_PCV13_22012024.pdf', width = 9/2.54, height = 6/2.54)
 df_overall_fitness$Genotype = factor(df_overall_fitness$Genotype, levels = c('NVT', 'PCV7', 'PCV13'))
-################################################################################
-library(ggplot2)
 ACV = ggplot(df_overall_fitness, aes(x = Time, y=Values, color = Genotype)) + 
   geom_abline(slope = 0, intercept = log(1), linetype = "dashed", colour = 'grey60') +
   stat_summary(fun.data = f2, lwd = 0.2, alpha=1, position = position_dodge2(width = 0.2), geom = "pointrange")+ 
@@ -297,81 +421,29 @@ dev.off()
 ################################################################################
 
 ################################################################################
-## Ouput estimates
+## Estimate relative fitness, per vax era
 ################################################################################
 res = data.frame('seroype' = c('NVT', 'PCV7', 'PCV13'),
-                 'Fitness_2000_2009' = c(paste0(round(mean.and.ci(df_overall_fitness$Values[which(df_overall_fitness$Time == '-1' & df_overall_fitness$Genotype == 'NVT')]), digits = 2), collapse =  '-'),
-                                         paste0(round(mean.and.ci(df_overall_fitness$Values[which(df_overall_fitness$Time == '-1' & df_overall_fitness$Genotype == 'PCV7')]), digits = 2), collapse =  '-'),
-                                         paste0(round(mean.and.ci(df_overall_fitness$Values[which(df_overall_fitness$Time == '-1' & df_overall_fitness$Genotype == 'PCV13')]), digits = 2), collapse =  '-')),
-                 'Fitness_2010-2015' = c(paste0(round(mean.and.ci(df_overall_fitness$Values[which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'NVT')]), digits = 2), collapse =  '-'),
-                                         paste0(round(mean.and.ci(df_overall_fitness$Values[which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'PCV7')]), digits = 2), collapse =  '-'),
-                                         paste0(round(mean.and.ci(df_overall_fitness$Values[which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'PCV13')]), digits = 2), collapse =  '-')))
-res_mean = data.frame('seroype' = c('NVT', 'PCV7', 'PCV13'),
-                      'Fitness_2000_2009' = c(paste0(round(mean.and.ci(df_overall_fitness$Values[which(df_overall_fitness$Time == '-1' & df_overall_fitness$Genotype == 'NVT')])[1], digits = 2), collapse =  '-'),
-                                              paste0(round(mean.and.ci(df_overall_fitness$Values[which(df_overall_fitness$Time == '-1' & df_overall_fitness$Genotype == 'PCV7')])[1], digits = 2), collapse =  '-'),
-                                              paste0(round(mean.and.ci(df_overall_fitness$Values[which(df_overall_fitness$Time == '-1' & df_overall_fitness$Genotype == 'PCV13')])[1], digits = 2), collapse =  '-')),
-                      'Fitness_2010-2015' = c(paste0(round(mean.and.ci(df_overall_fitness$Values[which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'NVT')])[1], digits = 2), collapse =  '-'),
-                                              paste0(round(mean.and.ci(df_overall_fitness$Values[which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'PCV7')])[1], digits = 2), collapse =  '-'),
-                                              paste0(round(mean.and.ci(df_overall_fitness$Values[which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'PCV13')])[1], digits = 2), collapse =  '-')))
-res_cimin = data.frame('seroype' = c('NVT', 'PCV7', 'PCV13'),
-                      'Fitness_2000_2009' = c(paste0(round(mean.and.ci(df_overall_fitness$Values[which(df_overall_fitness$Time == '-1' & df_overall_fitness$Genotype == 'NVT')])[2], digits = 2), collapse =  '-'),
-                                              paste0(round(mean.and.ci(df_overall_fitness$Values[which(df_overall_fitness$Time == '-1' & df_overall_fitness$Genotype == 'PCV7')])[2], digits = 2), collapse =  '-'),
-                                              paste0(round(mean.and.ci(df_overall_fitness$Values[which(df_overall_fitness$Time == '-1' & df_overall_fitness$Genotype == 'PCV13')])[2], digits = 2), collapse =  '-')),
-                      'Fitness_2010-2015' = c(paste0(round(mean.and.ci(df_overall_fitness$Values[which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'NVT')])[2], digits = 2), collapse =  '-'),
-                                              paste0(round(mean.and.ci(df_overall_fitness$Values[which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'PCV7')])[2], digits = 2), collapse =  '-'),
-                                              paste0(round(mean.and.ci(df_overall_fitness$Values[which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'PCV13')])[2], digits = 2), collapse =  '-')))
-res_cimax = data.frame('seroype' = c('NVT', 'PCV7', 'PCV13'),
-                       'Fitness_2000_2009' = c(paste0(round(mean.and.ci(df_overall_fitness$Values[which(df_overall_fitness$Time == '-1' & df_overall_fitness$Genotype == 'NVT')])[3], digits = 2), collapse =  '-'),
-                                               paste0(round(mean.and.ci(df_overall_fitness$Values[which(df_overall_fitness$Time == '-1' & df_overall_fitness$Genotype == 'PCV7')])[3], digits = 2), collapse =  '-'),
-                                               paste0(round(mean.and.ci(df_overall_fitness$Values[which(df_overall_fitness$Time == '-1' & df_overall_fitness$Genotype == 'PCV13')])[3], digits = 2), collapse =  '-')),
-                       'Fitness_2010-2015' = c(paste0(round(mean.and.ci(df_overall_fitness$Values[which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'NVT')])[3], digits = 2), collapse =  '-'),
-                                               paste0(round(mean.and.ci(df_overall_fitness$Values[which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'PCV7')])[3], digits = 2), collapse =  '-'),
-                                               paste0(round(mean.and.ci(df_overall_fitness$Values[which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'PCV13')])[3], digits = 2), collapse =  '-')))
-saveRDS(list(res_mean, res_cimin, res_cimax), 'Fitness_estimates_NVT_PCV7_PCV13_swicth2009_plus0.rds')
+                 'Pre-PCV' = c(paste0(round(mean.and.ci(df_relative_fitness_vs_NVT$Values[which(df_relative_fitness_vs_NVT$Time == 'Pre-PCV' & df_relative_fitness_vs_NVT$Type == 'NVT')]), digits = 2), collapse =  '-'),
+                               paste0(round(mean.and.ci(df_relative_fitness_vs_NVT$Values[which(df_relative_fitness_vs_NVT$Time == 'Pre-PCV' & df_relative_fitness_vs_NVT$Type == 'PCV7')]), digits = 2), collapse =  '-'),
+                               paste0(round(mean.and.ci(df_relative_fitness_vs_NVT$Values[which(df_relative_fitness_vs_NVT$Time == 'Pre-PCV' & df_relative_fitness_vs_NVT$Type == 'PCV13')]), digits = 2), collapse =  '-')),
+                 'Post-PCV' = c(paste0(round(mean.and.ci(df_relative_fitness_vs_NVT$Values[which(df_relative_fitness_vs_NVT$Time == 'Post-PCV' & df_relative_fitness_vs_NVT$Type == 'NVT')]), digits = 2), collapse =  '-'),
+                                paste0(round(mean.and.ci(df_relative_fitness_vs_NVT$Values[which(df_relative_fitness_vs_NVT$Time == 'Post-PCV' & df_relative_fitness_vs_NVT$Type == 'PCV7')]), digits = 2), collapse =  '-'),
+                                paste0(round(mean.and.ci(df_relative_fitness_vs_NVT$Values[which(df_relative_fitness_vs_NVT$Time == 'Post-PCV' & df_relative_fitness_vs_NVT$Type == 'PCV13')]), digits = 2), collapse =  '-')))
+write.csv(res, 'Estimates_Fig4DE_relative_fitness_estimates_prevax_NVT_PCV7_PCV13_22012026.csv')
 ################################################################################
 
-
 ################################################################################
-## Compute VT fitness estimate - PAPER ESTIMATES
+## Estimate relative fitness of each Type after vax implementation, compared to pre implementation
 ################################################################################
-fitness_VT_pre = rep(0, length(nb_chains))
-fitness_VT_post = rep(0, length(nb_chains))
-mean_freq_PCV7_pre = NULL
-mean_freq_PCV7_post = NULL
-mean_freq_PCV13_pre = NULL
-mean_freq_PCV13_post = NULL
-for(k in 1:nb_countries){
-  mean_freq = Chains$pred_absolute_freq[,k,1,vacc_WCV_k:(yearF0_k-1)]
-  mean_freq = apply(mean_freq, MARGIN = 1, mean)
-  mean_freq_PCV7_pre = c(mean_freq_PCV7_pre, mean_freq)
-  
-  mean_freq = Chains$pred_absolute_freq[,k,1,yearF0_k:nb_years]
-  mean_freq = apply(mean_freq, MARGIN = 1, mean)
-  mean_freq_PCV7_post = c(mean_freq_PCV7_post, mean_freq)
-
-  mean_freq = Chains$pred_absolute_freq[,k,2,vacc_WCV_k:(yearF0_k-1)]
-  mean_freq = apply(mean_freq, MARGIN = 1, mean)
-  mean_freq_PCV13_pre = c(mean_freq_PCV13_pre, mean_freq)
-  
-  mean_freq = Chains$pred_absolute_freq[,k,2,yearF0_k:nb_years]
-  mean_freq = apply(mean_freq, MARGIN = 1, mean)
-  mean_freq_PCV13_post = c(mean_freq_PCV13_post, mean_freq)
-}
-fitness_VT_pre = df_overall_fitness$Values[which(df_overall_fitness$Time == '-1' & df_overall_fitness$Genotype == 'PCV7')]*mean_freq_PCV7_pre/(mean_freq_PCV7_pre+mean_freq_PCV13_pre) +
-  df_overall_fitness$Values[which(df_overall_fitness$Time == '-1' & df_overall_fitness$Genotype == 'PCV13')]*mean_freq_PCV13_pre/(mean_freq_PCV7_pre+mean_freq_PCV13_pre)
-fitness_VT_post = df_overall_fitness$Values[which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'PCV7')]*mean_freq_PCV7_post/(mean_freq_PCV7_post+mean_freq_PCV13_post) +
-  df_overall_fitness$Values[which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'PCV13')]*mean_freq_PCV13_post/(mean_freq_PCV7_post+mean_freq_PCV13_post)
-fitness_NVT_post = df_overall_fitness$Values[which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'NVT')]
-fitness_NVT_pre = df_overall_fitness$Values[which(df_overall_fitness$Time == '-1' & df_overall_fitness$Genotype == 'NVT')]
-
-mean.and.ci(fitness_VT_post)
-mean.and.ci(fitness_NVT_post)
-mean.and.ci(exp(log(fitness_VT_post)*35/365))
-mean.and.ci(exp(log(fitness_NVT_post)*35/365))
-mean.and.ci(fitness_NVT_post/fitness_VT_post)
-
-
-mean.and.ci(fitness_VT_post/fitness_VT_pre)
-mean.and.ci(fitness_NVT_post/fitness_NVT_pre)
+res = data.frame('seroype' = c('NVT', 'PCV7', 'PCV13'),
+                 'Pre-PCV' = c(paste0(round(mean.and.ci(df_relative_fitness_type_post_vs_pre$Values[which(df_relative_fitness_type_post_vs_pre$Time == 'Pre-PCV' & df_relative_fitness_type_post_vs_pre$Type == 'NVT')]), digits = 2), collapse =  '-'),
+                               paste0(round(mean.and.ci(df_relative_fitness_type_post_vs_pre$Values[which(df_relative_fitness_type_post_vs_pre$Time == 'Pre-PCV' & df_relative_fitness_type_post_vs_pre$Type == 'PCV7')]), digits = 2), collapse =  '-'),
+                               paste0(round(mean.and.ci(df_relative_fitness_type_post_vs_pre$Values[which(df_relative_fitness_type_post_vs_pre$Time == 'Pre-PCV' & df_relative_fitness_type_post_vs_pre$Type == 'PCV13')]), digits = 2), collapse =  '-')),
+                 'Post-PCV' = c(paste0(round(mean.and.ci(df_relative_fitness_type_post_vs_pre$Values[which(df_relative_fitness_type_post_vs_pre$Time == 'Post-PCV' & df_relative_fitness_type_post_vs_pre$Type == 'NVT')]), digits = 2), collapse =  '-'),
+                                paste0(round(mean.and.ci(df_relative_fitness_type_post_vs_pre$Values[which(df_relative_fitness_type_post_vs_pre$Time == 'Post-PCV' & df_relative_fitness_type_post_vs_pre$Type == 'PCV7')]), digits = 2), collapse =  '-'),
+                                paste0(round(mean.and.ci(df_relative_fitness_type_post_vs_pre$Values[which(df_relative_fitness_type_post_vs_pre$Time == 'Post-PCV' & df_relative_fitness_type_post_vs_pre$Type == 'PCV13')]), digits = 2), collapse =  '-')))
+write.csv(res, 'Estimates_Fig4F_relative_fitness_estimates_post_vs_prevax_NVT_PCV7_PCV13_22012026.csv')
+################################################################################
 
 

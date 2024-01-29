@@ -4,11 +4,10 @@ library(rstan)
 library(RColorBrewer)
 library(binom)
 
-# setwd('/Users/noemielefrancq/Documents/Project_fitness_Strep_Pneumo/SPneumoMobility/Fitness/fitness_clean_NL/')
+setwd('/Users/noemielefrancq/Documents/Project_fitness_Strep_Pneumo/SPneumoMobility/Fitness/fitness_clean_NL/')
 
 ## Load fit
-# fit = readRDS(file = '4_2_per_serotype_overvallSA/Output_individual_serotypes_swicth2009_fit_all.rds')
-fit = readRDS(file = './4_run_model/Serotypes/Output_per_serotype_swicth2009_fit_all.rds')
+fit = readRDS(file = '4_2_per_serotype_overvallSA/Output_individual_serotypes_swicth2009_fit_all.rds')
 
 ## Chains
 Chains=rstan::extract(fit$fit)
@@ -39,7 +38,7 @@ f2 <- function(x) {
 ################################################################################
 ## Growth rate (fitness) weighted by proportions of serotypes
 ################################################################################
-# load('/Users/noemielefrancq/Documents/Project_fitness_Strep_Pneumo/SPneumoMobility/Fitness/fitness_clean_NL/1_raw_data/GPS_SA.GPSC.RData')
+load('/Users/noemielefrancq/Documents/Project_fitness_Strep_Pneumo/SPneumoMobility/Fitness/fitness_clean_NL/1_raw_data/GPS_SA.GPSC.RData')
 
 vaccination = fit$data$booster_introduction
 nb_chains = length(Chains$lp__)
@@ -47,8 +46,8 @@ nb_countries = fit$data$nb_countries
 nb_years = fit$data$nb_years
 length_vect_fitness_post_vacc = fit$data$number_R_post_vacc
 length_vect_fitness_pre_vacc = fit$data$number_R_pre_vacc
-index_parameter = fit$data$vax_implementation
-nb_genotypes = fit$data$nb_sero
+index_parameter = fit$data$index_paramater
+nb_genotypes = fit$data$nb_genotypes
 ref_genotype = 11
 ref_genotype_header = '13'
 Genotype = levels(as.factor(GPS_SA.sub$In_Silico_Serotype))[-ref_genotype]
@@ -57,13 +56,13 @@ df_overall_fitness = data.frame('Values' = NA,
                                 'Time' = NA,
                                 'Genotype' = NA)
 
-vaccinationACV = fit$data$yearIntroduction[1]
+vaccinationACV = fit$data$yearIntroduction
 vaccinationWCV = fit$data$yearF0
 
 for(k in 1:nb_countries){
   ## Compute reference fitness first:
   ## pre vacc
-  mat_tmp = matrix(NA, ncol =  fit$data$nb_sero, nrow = nb_chains*length_vect_fitness_pre_vacc)
+  mat_tmp = matrix(NA, ncol =  fit$data$nb_genotypes, nrow = nb_chains*length_vect_fitness_pre_vacc)
   vacc_ACV_k = vaccinationACV[k]
   vacc_WCV_k = vaccinationWCV[k]
   if(vacc_ACV_k>=nb_years) vacc_ACV_k = nb_years-1;
@@ -95,7 +94,7 @@ for(k in 1:nb_countries){
                                             'Time' = rep(-1, each = nb_chains),
                                             'Genotype' = rep(ref_genotype_header, nb_chains*length_vect_fitness_post_vacc)))
   ## post vacc
-  mat_tmp = matrix(NA, ncol =  fit$data$nb_sero, nrow = nb_chains*length_vect_fitness_post_vacc)
+  mat_tmp = matrix(NA, ncol =  fit$data$nb_genotypes, nrow = nb_chains*length_vect_fitness_post_vacc)
   for(gref in 1:(nb_genotypes-1)){
     for(i in 1:length_vect_fitness_post_vacc){
       if(index_parameter[gref] > 0){
@@ -123,7 +122,7 @@ for(k in 1:nb_countries){
   for(g in 1:(nb_genotypes-1)){
     print(g)
     ## pre vacc
-    mat_tmp = matrix(NA, ncol =  fit$data$nb_sero, nrow = nb_chains*length_vect_fitness_pre_vacc)
+    mat_tmp = matrix(NA, ncol =  fit$data$nb_genotypes, nrow = nb_chains*length_vect_fitness_pre_vacc)
     for(gref in 1:(nb_genotypes-1)){
       for(i in 1:length_vect_fitness_pre_vacc){
         if(index_parameter[g] > 0){
@@ -165,7 +164,7 @@ for(k in 1:nb_countries){
                                               'Genotype' = rep(Genotype[g], nb_chains*length_vect_fitness_post_vacc)))
     
     ## post vacc
-    mat_tmp = matrix(NA, ncol =  fit$data$nb_sero, nrow = nb_chains*length_vect_fitness_post_vacc)
+    mat_tmp = matrix(NA, ncol =  fit$data$nb_genotypes, nrow = nb_chains*length_vect_fitness_post_vacc)
     for(gref in 1:(nb_genotypes-1)){
       for(i in 1:length_vect_fitness_post_vacc){
         if(index_parameter[g] > 0){
@@ -325,57 +324,36 @@ for(i in Genotype){
 df_overall_fitness_all = rbind(df_overall_fitness_to_plot, df_overall_fitness_NVT_VT_grouped)
 ################################################################################
 
-################################################################################
-## Write fitness estimates in table
-################################################################################
-results_per_serotype = matrix(0, 
-                              nrow = length(Genotype),
-                              ncol = 4)
-colnames(results_per_serotype) = c('Serotype', 'Vaccine type', 'pre vaccine fitness', 'post vaccine fitness')
+## N
+Sampling_size_by_sero = c(rowSums(fit$data$data_genotype_non_ref[,,1]), sum(fit$data$data_genotype_ref))
+names(Sampling_size_by_sero) = c(rownames(clade_sero_list[[1]])[-1], rownames(clade_sero_list[[1]])[1])
 
-for(i in 1:length(Genotype)){
-  idx = which(df_overall_fitness_all$Serotype == Genotype[i])
-  results_per_serotype[i,1] = Genotype[i]
-  results_per_serotype[i,2] = df_overall_fitness_all$Genotype[idx[1]]
-  
-  idx = which(df_overall_fitness_all$Serotype == Genotype[i] & df_overall_fitness_all$Time == -1)
-  tmp = mean.and.ci(df_overall_fitness_all$Values[idx])
-  tmp = round(tmp, digits = 3)
-  results_per_serotype[i,3] = paste0(tmp[1], ' [', tmp[2], ', ', tmp[3], ']')
-  
-  idx = which(df_overall_fitness_all$Serotype == Genotype[i] & df_overall_fitness_all$Time == 1)
-  tmp = mean.and.ci(df_overall_fitness_all$Values[idx])
-  tmp = round(tmp, digits = 3)
-  results_per_serotype[i,4] = paste0(tmp[1], ' [', tmp[2], ', ', tmp[3], ']')
-}
-write.csv(results_per_serotype, '4_2_per_serotype_overvallSA/Fitness_estimates_individual_serotypes_26012024.csv')
-################################################################################
+plot(Sampling_size_by_sero)
+sero_to_remove = names(which(Sampling_size_by_sero < 50))
+
+df_overall_fitness_NVT_VT_grouped = df_overall_fitness_NVT_VT_grouped[which(is.na(match(df_overall_fitness_NVT_VT_grouped$Serotype, sero_to_remove)) == T), ] 
+df_overall_fitness_to_plot = df_overall_fitness_to_plot[which(is.na(match(df_overall_fitness_to_plot$Serotype, sero_to_remove)) == T), ] 
 
 ################################################################################
 ## Set directory
 ################################################################################
 setwd('/Users/noemielefrancq/Documents/Project_fitness_Strep_Pneumo/SPneumoMobility/Fitness/fitness_clean_NL/5_figures/')
 
-saveRDS(df_overall_fitness_all, 'Data_plot_per_serotype_23012024.rds')
-
+saveRDS(df_overall_fitness_all, 'Data_plot_per_serotype_12082022.rds')
 ################################################################################
 ## Fitness, per serotype, per vaccine era (1 switch in 2010)
 ################################################################################
-pdf(width = 8/2.54, height = 6/2.54, file = "Figure_fitness_estimates_serotypes_NVT_PCV7_PCV13_23012024.pdf", onefile = T)
+pdf(width = 8/2.54, height = 6/2.54, file = "Figure_fitness_estimates_serotypes_NVT_PCV7_PCV13_12082022.pdf", onefile = T)
 df_overall_fitness_NVT_VT_grouped$Genotype = factor(df_overall_fitness_NVT_VT_grouped$Genotype, levels = c("NVT", "PCV7", "PCV13"))
 df_overall_fitness_to_plot$Genotype = factor(df_overall_fitness_to_plot$Genotype, levels = c("NVT", "PCV7", "PCV13"))
 ACV = ggplot(data = df_overall_fitness_NVT_VT_grouped, aes(x = Time, y=Values, fill = Genotype)) + 
   geom_abline(slope = 0, intercept = log(1), linetype = "dashed", colour = 'grey60') +
-  # stat_summary(fun.data = f2, data = df_overall_fitness_to_plot, aes(x = Time, y = Values, fill = Serotype), 
-  #              position = position_dodge2(width = 1), 
-  #              geom = "pointrange", size = 0.01, alpha = 0.4, colour = 'grey')+ 
   stat_summary(fun.data = f2, data = df_overall_fitness_to_plot, aes(x = Time, y = Values, fill = Serotype), 
-               position = position_dodge2(width = 1), 
-               geom = "pointrange", lwd = 0.1, size = 0.1, alpha = 0.2, colour = 'grey')+ 
-  scale_fill_manual(labels=levels(df_overall_fitness_to_plot$Serotype), name = "Clades", values = c(rep(adjustcolor('grey', alpha.f = 0.4), 100),  'royalblue', 'darkgreen', 'firebrick'))+
+               position = position_dodge2(width = 1), geom = "pointrange", size = 0.01, alpha = 0.4, colour = 'grey')+ 
+  scale_fill_manual(labels=levels(df_overall_fitness_to_plot$Serotype), name = "Clades", values = c(rep(adjustcolor('grey', alpha.f = 0.4), 100),  'darkgreen', 'firebrick', 'royalblue'))+
   stat_summary(fun.data = f2, data = df_overall_fitness_NVT_VT_grouped, aes(x = Time, y=Values, colour = Genotype),
                geom = "pointrange", size = 0.1)+ 
-  scale_colour_manual(labels=levels(df_overall_fitness_NVT_VT_grouped$Genotype), name = "Clades", values = c('royalblue', 'darkgreen', 'firebrick'))+
+  scale_colour_manual(labels=levels(df_overall_fitness_NVT_VT_grouped$Genotype), name = "Clades", values = c('darkgreen', 'firebrick', 'royalblue'))+
   # geom_pointrange(fill='blue', color='grey', shape=21, fatten = 20, size = 5)+
   theme_classic()+
   facet_grid(.~Genotype)+
@@ -389,8 +367,8 @@ ACV = ggplot(data = df_overall_fitness_NVT_VT_grouped, aes(x = Time, y=Values, f
                      breaks = c(0.1, 0.25,0.5, 0.75, 1.0, 1.5, 2, 3, 10), 
                      labels = c('<0.1', 0.25,0.5, 0.75, 1.0, 1.5, 2, 3, 10))+
   labs(title = "", x = '', y = 'Fitness')+
-  # scale_color_manual(labels=levels(df_overall_fitness_NVT_VT_grouped$Serotype), name = "Clades", values = c(rep('grey', 55),  'royalblue', 'darkgreen', 'firebrick'))+
-  # scale_fill_manual(labels=unique(df_overall_fitness_NVT_VT_grouped$Genotype), name = "Clades", values = c('royalblue', 'darkgreen', 'firebrick'))+
+  # scale_color_manual(labels=levels(df_overall_fitness_NVT_VT_grouped$Serotype), name = "Clades", values = c(rep('grey', 55),  'darkgreen', 'firebrick', 'royalblue'))+
+  # scale_fill_manual(labels=unique(df_overall_fitness_NVT_VT_grouped$Genotype), name = "Clades", values = c('darkgreen', 'firebrick', 'royalblue'))+
   theme(plot.title = element_text (face = 'bold',size = 10,hjust = 0.5),
         legend.text = element_text(size = 10),
         legend.title = element_text(size = 10),
@@ -421,10 +399,10 @@ colors[which(titles_vt == 'NVT')] = 'royalblue'
 colors[which(titles_vt == 'PCV7')] = 'darkgreen'
 colors[which(titles_vt == 'PCV13')] = 'firebrick'
 
-pdf(file = 'Figure_estimates_perserotypes_23012024.pdf', width = 19/2.54, height = 27/2.54)
+pdf(file = 'Figure_estimates_perserotypes_12082022.pdf', width = 19/2.54, height = 27/2.54)
 ACV = ggplot(df_overall_fitness, aes(x = Time, y=Values, color = Genotype)) + 
   geom_abline(slope = 0, intercept = log(1), linetype = "dashed", colour = 'grey60') +
-  stat_summary(fun.data = f2, lwd = 0.5, size = 0.2, alpha=1, position = position_dodge2(width = 0.2), geom = "pointrange")+ 
+  stat_summary(fun.data = f2, lwd = 0.2, alpha=1, position = position_dodge2(width = 0.2), geom = "pointrange")+ 
   theme_classic()+
   facet_wrap(.~Genotype, ncol = 11)+
   geom_vline(xintercept = 0, linetype = "longdash", color = 'grey')+
@@ -455,7 +433,7 @@ dev.off()
 ################################################################################
 ## Fitness, per serotype, NVT combined
 ################################################################################
-pdf(file = 'Figure_estimates_perserotypes_combinedNVT_23012024.pdf', width = 18/2.54, height = 6/2.54)
+pdf(file = 'Figure_estimates_perserotypes_combinedNVT.pdf', width = 18/2.54, height = 6/2.54)
 
 pcv7.type <- c("4","6B", "9V","14","18C", "19F", "23F")
 pcv13.type <- c("1","3","5","6A","7F","19A")
