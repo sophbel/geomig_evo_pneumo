@@ -4,11 +4,11 @@ library(rstan)
 library(RColorBrewer)
 library(binom)
 
-setwd('/Users/noemielefrancq/Documents/Project_fitness_Strep_Pneumo/SPneumoMobility/Fitness/fitness_clean_NL/')
+# setwd('/Users/noemielefrancq/Documents/Project_fitness_Strep_Pneumo/SPneumoMobility/Fitness/fitness_clean_NL/')
 
 ## Load fit
-fit = readRDS(file = '4_1_per_province_NVT_PCV7_PCV13_testswicth/test_shift_delay_22012024/Output_per_provice_NVT_PCV7_PCV13_swicthes2009and2011_1pervax_plus0_fit_all.rds')
-
+# fit = readRDS(file = '4_1_per_province_NVT_PCV7_PCV13_testswicth/test_shift_delay_22012024/Output_per_provice_NVT_PCV7_PCV13_swicthes2009and2011_1pervax_plus0_fit_all.rds')
+fit = readRDS(file='./4_run_model/NVT_PCV7_PCV13/output/Output_per_provice_NVT_PCV7_PCV13_swicthes2009and2011_1pervax_plus0_fit_all.rds')
 ## Chains
 Chains=rstan::extract(fit$fit)
 
@@ -251,7 +251,7 @@ for(k in 1:nb_countries){
 
 df_overall_fitness = df_overall_fitness[-1,] ## Remove the NA from the beginning
 
-saveRDS(df_overall_fitness, 'Data_plot_per_VT_22012024.rds')
+saveRDS(df_overall_fitness, '4_run_model/NVT_PCV7_PCV13/output/Data_plot_per_VT_22012024.rds')
 
 ################################################################################
 ## Set directory

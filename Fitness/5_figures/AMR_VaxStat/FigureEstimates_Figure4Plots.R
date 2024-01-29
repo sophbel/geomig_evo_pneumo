@@ -2,9 +2,9 @@
 library(ggplot2)
 library(rstan)
 
-df_overall_fitness<-readRDS("./4_run_model/output/NVT_PCV7_PCV13/Data_plot_per_VT_12082022.rds")
+df_overall_fitness<-readRDS("./4_run_model/NVT_PCV7_PCV13/output/Data_plot_per_VT_22012024.rds")
 ## Load fit
-fit = readRDS(file = './4_run_model/output/NVT_PCV7_PCV13/Output_per_provice_NVT_PCV7_PCV13_swicth2009_plus0_fit_all.rds')
+fit = readRDS(file = './4_run_model/NVT_PCV7_PCV13/output/Output_per_provice_NVT_PCV7_PCV13_swicth2009_plus0_fit_all.rds')
 ## Chains
 Chains=rstan::extract(fit$fit)
 #######FUNCTIONS
@@ -85,6 +85,7 @@ fitness_PCV13_post = df_overall_fitness$Values[which(df_overall_fitness$Time == 
 
 mean.and.ci(fitness_PCV7_post/fitness_PCV7_pre)
 mean.and.ci(fitness_PCV13_post/fitness_PCV13_pre)
+mean.and.ci(fitness_NVT_post/fitness_NVT_pre)
 
 ######Pre and post compared to an NVT reference####
 prePostNVTRef.df<-matrix(nrow=6,ncol=5)
@@ -143,7 +144,7 @@ save(prePostNVTRef.df.estimates,file="./5_figures/AMR_VaxStat/prePostNVTRef.df.e
 
 p2<-ggplot(prePostNVTRef.df.estimates,aes(x=Group,y=mean,group=Time,color=Group))+
   geom_hline(yintercept = 1, linetype = "longdash", color = 'grey')+
-  geom_point(size=3,shape=18)+
+  geom_point(size=5,shape=18)+
   theme_classic()+
   geom_errorbar(data=subset(prePostNVTRef.df.estimates,prePostNVTRef.df.estimates$Group!="NVT"),aes(x=Group,ymin=lowerCI,ymax=upperCI,group=Time,color=Group),width=0.3)+
   scale_y_continuous(trans = 'log', limits = c(0.5,1.6),

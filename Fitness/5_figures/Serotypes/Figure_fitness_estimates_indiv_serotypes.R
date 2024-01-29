@@ -4,10 +4,11 @@ library(rstan)
 library(RColorBrewer)
 library(binom)
 
-setwd('/Users/noemielefrancq/Documents/Project_fitness_Strep_Pneumo/SPneumoMobility/Fitness/fitness_clean_NL/')
+# setwd('/Users/noemielefrancq/Documents/Project_fitness_Strep_Pneumo/SPneumoMobility/Fitness/fitness_clean_NL/')
 
 ## Load fit
-fit = readRDS(file = '4_2_per_serotype_overvallSA/Output_individual_serotypes_swicth2009_fit_all.rds')
+# fit = readRDS(file = '4_2_per_serotype_overvallSA/Output_individual_serotypes_swicth2009_fit_all.rds')
+fit = readRDS(file = './4_run_model/Serotypes/Output_per_serotype_swicth2009_fit_all.rds')
 
 ## Chains
 Chains=rstan::extract(fit$fit)
@@ -38,7 +39,7 @@ f2 <- function(x) {
 ################################################################################
 ## Growth rate (fitness) weighted by proportions of serotypes
 ################################################################################
-load('/Users/noemielefrancq/Documents/Project_fitness_Strep_Pneumo/SPneumoMobility/Fitness/fitness_clean_NL/1_raw_data/GPS_SA.GPSC.RData')
+# load('/Users/noemielefrancq/Documents/Project_fitness_Strep_Pneumo/SPneumoMobility/Fitness/fitness_clean_NL/1_raw_data/GPS_SA.GPSC.RData')
 
 vaccination = fit$data$booster_introduction
 nb_chains = length(Chains$lp__)
@@ -46,8 +47,8 @@ nb_countries = fit$data$nb_countries
 nb_years = fit$data$nb_years
 length_vect_fitness_post_vacc = fit$data$number_R_post_vacc
 length_vect_fitness_pre_vacc = fit$data$number_R_pre_vacc
-index_parameter = fit$data$index_paramater
-nb_genotypes = fit$data$nb_genotypes
+index_parameter = fit$data$vax_implementation
+nb_genotypes = fit$data$nb_sero
 ref_genotype = 11
 ref_genotype_header = '13'
 Genotype = levels(as.factor(GPS_SA.sub$In_Silico_Serotype))[-ref_genotype]
@@ -62,7 +63,7 @@ vaccinationWCV = fit$data$yearF0
 for(k in 1:nb_countries){
   ## Compute reference fitness first:
   ## pre vacc
-  mat_tmp = matrix(NA, ncol =  fit$data$nb_genotypes, nrow = nb_chains*length_vect_fitness_pre_vacc)
+  mat_tmp = matrix(NA, ncol =  fit$data$nb_sero, nrow = nb_chains*length_vect_fitness_pre_vacc)
   vacc_ACV_k = vaccinationACV[k]
   vacc_WCV_k = vaccinationWCV[k]
   if(vacc_ACV_k>=nb_years) vacc_ACV_k = nb_years-1;
@@ -94,7 +95,7 @@ for(k in 1:nb_countries){
                                             'Time' = rep(-1, each = nb_chains),
                                             'Genotype' = rep(ref_genotype_header, nb_chains*length_vect_fitness_post_vacc)))
   ## post vacc
-  mat_tmp = matrix(NA, ncol =  fit$data$nb_genotypes, nrow = nb_chains*length_vect_fitness_post_vacc)
+  mat_tmp = matrix(NA, ncol =  fit$data$nb_sero, nrow = nb_chains*length_vect_fitness_post_vacc)
   for(gref in 1:(nb_genotypes-1)){
     for(i in 1:length_vect_fitness_post_vacc){
       if(index_parameter[gref] > 0){
@@ -122,7 +123,7 @@ for(k in 1:nb_countries){
   for(g in 1:(nb_genotypes-1)){
     print(g)
     ## pre vacc
-    mat_tmp = matrix(NA, ncol =  fit$data$nb_genotypes, nrow = nb_chains*length_vect_fitness_pre_vacc)
+    mat_tmp = matrix(NA, ncol =  fit$data$nb_sero, nrow = nb_chains*length_vect_fitness_pre_vacc)
     for(gref in 1:(nb_genotypes-1)){
       for(i in 1:length_vect_fitness_pre_vacc){
         if(index_parameter[g] > 0){
@@ -164,7 +165,7 @@ for(k in 1:nb_countries){
                                               'Genotype' = rep(Genotype[g], nb_chains*length_vect_fitness_post_vacc)))
     
     ## post vacc
-    mat_tmp = matrix(NA, ncol =  fit$data$nb_genotypes, nrow = nb_chains*length_vect_fitness_post_vacc)
+    mat_tmp = matrix(NA, ncol =  fit$data$nb_sero, nrow = nb_chains*length_vect_fitness_post_vacc)
     for(gref in 1:(nb_genotypes-1)){
       for(i in 1:length_vect_fitness_post_vacc){
         if(index_parameter[g] > 0){
