@@ -5,7 +5,7 @@ library(RColorBrewer)
 library(binom)
 
 ## Load fit
-fit = readRDS(file = 'Output_per_provice_NVT_PCV7_PCV13_swicthes2009and2011_1pervax_plus0_fit_all.rds')
+fit = readRDS(file = '4_run_model/NVT_PCV7_PCV13/output/Output_per_provice_NVT_PCV7_PCV13_swicthes2009and2011_1pervax_plus0_fit_all.rds')
 ## Chains
 Chains=rstan::extract(fit$fit)
 
@@ -43,7 +43,7 @@ province = c("Eastern Cape", "Free State", "Gauteng", "KwaZulu-Natal", "Limpopo"
 ############################################################################################
 ## Plot fits for model shared_param_PCV7_PCV13, per province
 ############################################################################################
-pdf(width = 9/2.54, height = 25/2.54, file = "Figure_fits_NVT_PCV7_PCV13_per_province_22012024.pdf", onefile = T)
+pdf(width = 9/2.54, height = 25/2.54, file = "5_figures/NVT_PCV7_PCV13/Figure_fits_NVT_PCV7_PCV13_per_province_22012024.pdf", onefile = T)
 par(mfrow = c(9,3), oma = c(1,1,1,0), mai = c(0.2,0.2,0.2,0.1))
 colors = c('chartreuse4', 'firebrick', 'royalblue')
 
@@ -56,8 +56,11 @@ for(c in 1:fit$data$nb_countries){
   total_m = rep(0, length(d))
   total_cimin = rep(0, length(d))
   total_cimax = rep(0, length(d))
+  
+  
   for(i in 1:(nb_genotypes)){
     t = fit$data$data_total_number[,c]
+    
     d_m = rep(0, length(d))
     d_ci = matrix(0, ncol = length(d), nrow = 2)
     if(i < nb_genotypes){
@@ -93,7 +96,7 @@ for(c in 1:fit$data$nb_countries){
     
     f[which(is.infinite(f)==T)] = NA
     f_mean_ci = apply(f, MARGIN = 2, function(x)mean.and.ci(x))
-    
+
     pch_times = fit$data$vaccine_introduction[c]
     
     ylims = c(0,1)
@@ -140,6 +143,7 @@ for(c in 1:fit$data$nb_countries){
     total_m = total_m + f_mean_ci[1,]
     total_cimin = total_cimin + f_mean_ci[2,]
     total_cimax = total_cimax + f_mean_ci[3,]
+    
   }
 }
 dev.off()
@@ -148,7 +152,7 @@ dev.off()
 ############################################################################################
 ## Plot fits for model shared_param_PCV7_PCV13 - overall south africa
 ############################################################################################
-pdf(width = 13/2.54, height = 5/2.54, file = "Figure_fits_NVT_PCV7_PCV13_overall_22012024.pdf", onefile = T)
+pdf(width = 13/2.54, height = 5/2.54, file = "5_figures/NVT_PCV7_PCV13/Figure_fits_NVT_PCV7_PCV13_overall_22012024.pdf", onefile = T)
 par(mfcol = c(1,3), oma = c(1,1,1,0), mai = c(0.2,0.2,0.2,0.1))
 
 colors = c('chartreuse4', 'firebrick', 'royalblue')
@@ -161,7 +165,11 @@ for(c in 1:1){
   total_m = rep(0, length(d))
   total_cimin = rep(0, length(d))
   total_cimax = rep(0, length(d))
+  fvt.mat<-d_m.mat<-matrix(nrow=nb_genotypes,ncol=nb_years)
+  mat.list<-list()
+  
   for(i in 1:(nb_genotypes)){
+    mat<-matrix(nrow=nb_years,ncol=7)
     t = rowSums(fit$data$data_total_number)
     d_m = rep(0, length(d))
     d_ci = matrix(0, ncol = length(d), nrow = 2)
@@ -193,6 +201,8 @@ for(c in 1:1){
     d_m[which(zeros==0)] = NA
     d_ci[1,which(zeros==0)] = NA
     d_ci[2,which(zeros==0)] = NA
+    ##### save the proportion of each in each year
+    d_m.mat[i,]<-d_m
     
     f = matrix(0, nrow = nb_chains, ncol = length(1:nb_years))
     if(i < nb_genotypes){
@@ -215,6 +225,9 @@ for(c in 1:1){
     
     f[which(is.infinite(f)==T)] = NA
     f_mean_ci = apply(f, MARGIN = 2, function(x)mean.and.ci(x))
+    
+    ###store the fits across years for each type
+    fvt.mat[i,]<-f_mean_ci[1,]
     
     pch_times = fit$data$vaccine_introduction[c]
     
@@ -263,6 +276,14 @@ for(c in 1:1){
     total_m = total_m + f_mean_ci[1,]
     total_cimin = total_cimin + f_mean_ci[2,]
     total_cimax = total_cimax + f_mean_ci[3,]
+    
+    mat[,1]<-1999+1:nb_years
+    mat[,2]<-t(d_m)
+    mat[,3:4]<-t(d_ci)
+    mat[,5:7]<-t(f_mean_ci)
+    colnames(mat)<-c("years","data","datalower","dataupper","fit","fitlower","fitupper")
+    mat<-data.table(mat)
+    mat$type<-titles[i]
   }
 }
 dev.off()

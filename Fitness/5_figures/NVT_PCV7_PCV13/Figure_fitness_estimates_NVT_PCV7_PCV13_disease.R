@@ -4,10 +4,10 @@ library(rstan)
 library(RColorBrewer)
 library(binom)
 
-setwd('/Users/noemielefrancq/Documents/Project_fitness_Strep_Pneumo/SPneumoMobility/Fitness/fitness_clean_NL/')
+# setwd('/Users/noemielefrancq/Documents/Project_fitness_Strep_Pneumo/SPneumoMobility/Fitness/fitness_clean_NL/')
 
 ## Load fit
-fit = readRDS(file = '4_1_per_province_NVT_PCV7_PCV13_testswicth/disease/Output_per_provice_NVT_PCV7_PCV13_swicthes2009and2011_1pervax_disease_plus0_fit_all.rds')
+fit = readRDS(file = './4_run_model/NVT_PCV7_PCV13/output/4_1_per_province_NVT_PCV7_PCV13_testswicth/disease/Output_per_provice_NVT_PCV7_PCV13_swicthes2009and2011_1pervax_disease_plus0_fit_all.rds')
 
 ## Chains
 Chains=rstan::extract(fit$fit)

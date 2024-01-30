@@ -4,7 +4,9 @@ library(rstan)
 
 df_overall_fitness<-readRDS("./4_run_model/NVT_PCV7_PCV13/output/Data_plot_per_VT_22012024.rds")
 ## Load fit
-fit = readRDS(file = './4_run_model/NVT_PCV7_PCV13/output/Output_per_provice_NVT_PCV7_PCV13_swicth2009_plus0_fit_all.rds')
+# fit = readRDS(file = './4_run_model/NVT_PCV7_PCV13/output/Output_per_provice_NVT_PCV7_PCV13_swicth2009_plus0_fit_all.rds')
+fit = readRDS(file = './4_run_model/NVT_PCV7_PCV13/output/Output_per_provice_NVT_PCV7_PCV13_swicthes2009and2011_1pervax_plus0_fit_all.rds')
+
 ## Chains
 Chains=rstan::extract(fit$fit)
 #######FUNCTIONS
@@ -191,4 +193,25 @@ mean.and.ci(fitness_vtR_post/fitness_vtR_pre)
 mean.and.ci(fitness_vtR_post/fitness_vtS_post)
 
 mean.and.ci(fitness_nvtR_post+fitness_vtR_post/2)
+
+
+
+#### numbers in the paper
+mean.and.ci(fitness_NVT_pre/c(fitness_PCV7_pre,fitness_PCV13_pre))
+mean.and.ci(c(fitness_PCV7_pre,fitness_PCV13_pre)/fitness_NVT_pre)
+mean.and.ci(c(fitness_PCV7_post,fitness_PCV13_post)/fitness_NVT_post)
+mean.and.ci(c(fitness_PCV7_post)/fitness_NVT_post)
+mean.and.ci(c(fitness_PCV13_post)/fitness_NVT_post)
+
+
+mean.and.ci(fitness_NVT_pre)
+mean.and.ci(fitness_NVT_post)
+
+mean.and.ci(fitness_PCV7_pre)
+mean.and.ci(fitness_PCV7_post)
+
+mean.and.ci(fitness_PCV13_pre)
+mean.and.ci(fitness_PCV13_post)
+
+
 

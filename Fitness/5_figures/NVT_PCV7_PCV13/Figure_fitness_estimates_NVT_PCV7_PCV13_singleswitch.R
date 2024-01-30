@@ -6,7 +6,6 @@ library(binom)
 library(ggplot2)
 
 # setwd('/Users/noemielefrancq/Documents/Project_fitness_Strep_Pneumo/SPneumoMobility/Fitness/fitness_clean_NL/')
-
 ## Load fit
 # fit = readRDS(file = '4_1_per_province_NVT_PCV7_PCV13_testswicth/test_shift_delay_22012024/Output_per_provice_NVT_PCV7_PCV13_swicthes2009and2011_1pervax_plus0_fit_all.rds')
 fit = readRDS(file='./4_run_model/NVT_PCV7_PCV13/output/Output_per_provice_NVT_PCV7_PCV13_swicthes2009and2011_1pervax_plus0_fit_all.rds')
@@ -249,12 +248,10 @@ for(k in 1:nb_countries){
 
 df_overall_fitness = df_overall_fitness[-1,] ## Remove the NA from the beginning
 
-<<<<<<< HEAD
-saveRDS(df_overall_fitness, '4_run_model/NVT_PCV7_PCV13/output/Data_plot_per_VT_22012024.rds')
-=======
-saveRDS(df_overall_fitness, 'Data_plot_per_VT_22012024.rds')
+# saveRDS(df_overall_fitness, '4_run_model/NVT_PCV7_PCV13/output/Data_plot_per_VT_22012024.rds')
+# =======
+# saveRDS(df_overall_fitness, 'Data_plot_per_VT_22012024.rds')
 ################################################################################
->>>>>>> 1cb83cf55efc3521df564aa14d95204b1632f94e
 
 ################################################################################
 ## Compute relative fitness of each VT, compared to NVT, pre and post PCV
@@ -333,13 +330,13 @@ df_relative_fitness_type_post_vs_pre = df_relative_fitness_type_post_vs_pre[-1,]
 ################################################################################
 ## Set directory to save figures
 ################################################################################
-setwd('/Users/noemielefrancq/Documents/Project_fitness_Strep_Pneumo/SPneumoMobility/Fitness/fitness_clean_NL/5_figures/')
+# setwd('/Users/noemielefrancq/Documents/Project_fitness_Strep_Pneumo/SPneumoMobility/Fitness/fitness_clean_NL/5_figures/')
 ################################################################################
 
 ################################################################################
 ## Fig 4D-E Relative fitness, compared to NVT, per vaccine type, per vaccine era
 ################################################################################
-pdf(file = 'Figure4DE_relative_fitness_estimates_prevax_NVT_PCV7_PCV13_22012026.pdf', width = 4, height = 3)
+pdf(file = './5_figures/Figure4DE_relative_fitness_estimates_prevax_NVT_PCV7_PCV13_22012026.pdf', width = 4, height = 3)
 df_relative_fitness_vs_NVT$Type = factor(df_relative_fitness_vs_NVT$Type, levels = c('NVT', 'PCV7', 'PCV13'))
 df_relative_fitness_vs_NVT$Time = factor(df_relative_fitness_vs_NVT$Time, levels = c('Pre-PCV', 'Post-PCV'))
 ################################################################################
@@ -363,7 +360,7 @@ dev.off()
 ################################################################################
 ## Fig 4F Relative fitness of each Type after vax implementation, compared to pre implementation
 ################################################################################
-pdf(file = 'Figure4F_relative_fitness_estimates_post_vs_prevax_NVT_PCV7_PCV13_22012026.pdf', width = 4, height = 3)
+pdf(file = './5_figures/Figure4F_relative_fitness_estimates_post_vs_prevax_NVT_PCV7_PCV13_22012026.pdf', width = 4, height = 3)
 df_relative_fitness_type_post_vs_pre$Type = factor(df_relative_fitness_type_post_vs_pre$Type, levels = c('NVT', 'PCV7', 'PCV13'))
 df_relative_fitness_type_post_vs_pre$Time = factor(df_relative_fitness_type_post_vs_pre$Time, levels = c('Pre-PCV', 'Post-PCV'))
 ################################################################################
@@ -387,7 +384,7 @@ dev.off()
 ################################################################################
 ## Fitness, per vaccine type, per vaccine era (NOT IN FUGURE 4!)
 ################################################################################
-pdf(file = 'Figure_fitness_estimates_NVT_PCV7_PCV13_22012024.pdf', width = 9/2.54, height = 6/2.54)
+pdf(file = './5_figures/Figure_fitness_estimates_NVT_PCV7_PCV13_22012024.pdf', width = 9/2.54, height = 6/2.54)
 df_overall_fitness$Genotype = factor(df_overall_fitness$Genotype, levels = c('NVT', 'PCV7', 'PCV13'))
 ACV = ggplot(df_overall_fitness, aes(x = Time, y=Values, color = Genotype)) + 
   geom_abline(slope = 0, intercept = log(1), linetype = "dashed", colour = 'grey60') +
@@ -430,7 +427,7 @@ res = data.frame('seroype' = c('NVT', 'PCV7', 'PCV13'),
                  'Post-PCV' = c(paste0(round(mean.and.ci(df_relative_fitness_vs_NVT$Values[which(df_relative_fitness_vs_NVT$Time == 'Post-PCV' & df_relative_fitness_vs_NVT$Type == 'NVT')]), digits = 2), collapse =  '-'),
                                 paste0(round(mean.and.ci(df_relative_fitness_vs_NVT$Values[which(df_relative_fitness_vs_NVT$Time == 'Post-PCV' & df_relative_fitness_vs_NVT$Type == 'PCV7')]), digits = 2), collapse =  '-'),
                                 paste0(round(mean.and.ci(df_relative_fitness_vs_NVT$Values[which(df_relative_fitness_vs_NVT$Time == 'Post-PCV' & df_relative_fitness_vs_NVT$Type == 'PCV13')]), digits = 2), collapse =  '-')))
-write.csv(res, 'Estimates_Fig4DE_relative_fitness_estimates_prevax_NVT_PCV7_PCV13_22012026.csv')
+write.csv(res, './5_figures/Estimates_Fig4DE_relative_fitness_estimates_prevax_NVT_PCV7_PCV13_22012026.csv')
 ################################################################################
 
 ################################################################################
@@ -443,7 +440,7 @@ res = data.frame('seroype' = c('NVT', 'PCV7', 'PCV13'),
                  'Post-PCV' = c(paste0(round(mean.and.ci(df_relative_fitness_type_post_vs_pre$Values[which(df_relative_fitness_type_post_vs_pre$Time == 'Post-PCV' & df_relative_fitness_type_post_vs_pre$Type == 'NVT')]), digits = 2), collapse =  '-'),
                                 paste0(round(mean.and.ci(df_relative_fitness_type_post_vs_pre$Values[which(df_relative_fitness_type_post_vs_pre$Time == 'Post-PCV' & df_relative_fitness_type_post_vs_pre$Type == 'PCV7')]), digits = 2), collapse =  '-'),
                                 paste0(round(mean.and.ci(df_relative_fitness_type_post_vs_pre$Values[which(df_relative_fitness_type_post_vs_pre$Time == 'Post-PCV' & df_relative_fitness_type_post_vs_pre$Type == 'PCV13')]), digits = 2), collapse =  '-')))
-write.csv(res, 'Estimates_Fig4F_relative_fitness_estimates_post_vs_prevax_NVT_PCV7_PCV13_22012026.csv')
+write.csv(res, './5_figures/Estimates_Fig4F_relative_fitness_estimates_post_vs_prevax_NVT_PCV7_PCV13_22012026.csv')
 ################################################################################
 
 
