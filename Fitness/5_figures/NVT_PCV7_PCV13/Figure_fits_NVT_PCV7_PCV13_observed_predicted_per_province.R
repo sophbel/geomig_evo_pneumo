@@ -284,9 +284,12 @@ for(c in 1:1){
     colnames(mat)<-c("years","data","datalower","dataupper","fit","fitlower","fitupper")
     mat<-data.table(mat)
     mat$type<-titles[i]
+    mat.list[[i]]<-mat
   }
 }
 dev.off()
+mat_nvtvt<-rbindlist(mat.list)
+save(mat_nvtvt,file="5_figures/NVT_PCV7_PCV13/fit_table_nvtpcv7pcv13_2switch.RData")
 ############################################################################################
 
 
