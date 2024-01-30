@@ -443,4 +443,57 @@ res = data.frame('seroype' = c('NVT', 'PCV7', 'PCV13'),
 write.csv(res, './5_figures/Estimates_Fig4F_relative_fitness_estimates_post_vs_prevax_NVT_PCV7_PCV13_22012026.csv')
 ################################################################################
 
+################################################################################
+## PAPER ESTIMATES - Compute fitness estimates for the paper
+################################################################################
+yearF0 = fit$data$yearF0_PCV7[k]
+vaccinationPCV7 = fit$data$yearIntroduction_PCV7[k]
+vaccinationPCV13 = fit$data$yearIntroduction_PCV13[k]
+
+fitness_VT_pre = rep(0, length(nb_chains))
+fitness_VT_post = rep(0, length(nb_chains))
+mean_freq_PCV7_pre = NULL
+mean_freq_PCV7_post = NULL
+mean_freq_PCV13_pre = NULL
+mean_freq_PCV13_post = NULL
+for(k in 1:nb_countries){
+  mean_freq = Chains$pred_absolute_freq[,k,1,yearF0:(vaccinationPCV7-1)]
+  mean_freq = apply(mean_freq, MARGIN = 1, mean)
+  mean_freq_PCV7_pre = c(mean_freq_PCV7_pre, mean_freq)
+  
+  mean_freq = Chains$pred_absolute_freq[,k,1,vaccinationPCV7:nb_years]
+  mean_freq = apply(mean_freq, MARGIN = 1, mean)
+  mean_freq_PCV7_post = c(mean_freq_PCV7_post, mean_freq)
+  
+  mean_freq = Chains$pred_absolute_freq[,k,2,yearF0:(vaccinationPCV13-1)]
+  mean_freq = apply(mean_freq, MARGIN = 1, mean)
+  mean_freq_PCV13_pre = c(mean_freq_PCV13_pre, mean_freq)
+  
+  mean_freq = Chains$pred_absolute_freq[,k,2,vaccinationPCV13:nb_years]
+  mean_freq = apply(mean_freq, MARGIN = 1, mean)
+  mean_freq_PCV13_post = c(mean_freq_PCV13_post, mean_freq)
+}
+fitness_VT_pre = df_overall_fitness$Values[which(df_overall_fitness$Time == '-1' & df_overall_fitness$Genotype == 'PCV7')]*mean_freq_PCV7_pre/(mean_freq_PCV7_pre+mean_freq_PCV13_pre) +
+  df_overall_fitness$Values[which(df_overall_fitness$Time == '-1' & df_overall_fitness$Genotype == 'PCV13')]*mean_freq_PCV13_pre/(mean_freq_PCV7_pre+mean_freq_PCV13_pre)
+fitness_VT_post = df_overall_fitness$Values[which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'PCV7')]*mean_freq_PCV7_post/(mean_freq_PCV7_post+mean_freq_PCV13_post) +
+  df_overall_fitness$Values[which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'PCV13')]*mean_freq_PCV13_post/(mean_freq_PCV7_post+mean_freq_PCV13_post)
+fitness_NVT_post = df_overall_fitness$Values[which(df_overall_fitness$Time == '1' & df_overall_fitness$Genotype == 'NVT')]
+fitness_NVT_pre = df_overall_fitness$Values[which(df_overall_fitness$Time == '-1' & df_overall_fitness$Genotype == 'NVT')]
+
+## Abstract
+mean.and.ci(fitness_NVT_post/fitness_VT_post) 
+
+## Main
+mean.and.ci(fitness_NVT_pre)
+
+a = which(df_relative_fitness_type_post_vs_pre$Time == 'Post-PCV' & df_relative_fitness_type_post_vs_pre$Type == 'PCV7')
+mean.and.ci(df_relative_fitness_type_post_vs_pre$Values[a]) ## OK
+a = which(df_relative_fitness_type_post_vs_pre$Time == 'Post-PCV' & df_relative_fitness_type_post_vs_pre$Type == 'PCV13')
+mean.and.ci(df_relative_fitness_type_post_vs_pre$Values[a]) ## OK
+a = which(df_relative_fitness_type_post_vs_pre$Time == 'Post-PCV' & df_relative_fitness_type_post_vs_pre$Type == 'NVT')
+mean.and.ci(df_relative_fitness_type_post_vs_pre$Values[a]) ## OK
+
+mean.and.ci(fitness_NVT_post/fitness_VT_post)
+mean.and.ci(exp(log(fitness_NVT_post/fitness_VT_post)*35/365))
+################################################################################
 
