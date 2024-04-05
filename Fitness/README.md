@@ -11,10 +11,12 @@ Each top folders is subset by the three different types of models we run: <br />
 
 ### 1: Raw data
 ```./1_raw_data/```<br />
-In this folder, you will find the raw data used, consisting of the metadat for each sequence in this study.  
+In this folder, you will find the raw data used, consisting of the metadata for each sequence in this study.  
 
 ### 2: Processed data
 ```./2_processed_data/```<br />
+In each of these folders is a script to create arrays containing the counts of each group by year and country interrogated.<br />
+These files have the prefix "clade_", they are then read into the second script to create the input file for stan containing the prefix "Data_model_". This file contains crucial information about the dataset such as the year of vaccine introduction, the number of countries, number of groups being tested, number of years etc. <br />
 #### NVT_PCV_PCV13 & Serotypes
 In these folders you will find data_creator script which will take the raw data and create the input files for the model. 
 #### AMR_VaxStat
