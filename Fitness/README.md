@@ -29,7 +29,7 @@ You will find the various models used in this study in their respective folders.
 
 ### 4: Run Model
 ```./4_run_model/```<br />
-In this folder you will find the scripts to run each model for each group respectively as well as an output folder where your chains will save. <br>
+In this folder you will find the scripts to run each model for each group respectively as well as an output folder where your chains will save. Each of the three chains will save as will a file with the suffix "_fit_all" containing all chains and the data which was input from step 2 in a list. <br>
 Link to chains to download https://figshare.com/s/6ce649eb497ee9455ca2
 
 ### 5: Figures
