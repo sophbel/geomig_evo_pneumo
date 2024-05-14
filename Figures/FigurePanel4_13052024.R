@@ -3,6 +3,8 @@
 ################
 library(ggplot2)
 library(data.table)
+library(patchwork)
+
 ##### Figure 4A-C#####------------------------------------------------------------
 load("./Figures/Figure4/fit_table_nvtpcv7pcv13_2switch.RData")
 mat.all<-mat_nvtvt
@@ -68,7 +70,7 @@ E4<-ggplot(mat_ests_preref,aes(x=Time,y=mean,group=Group,color=Group))+
         strip.text.x = element_text(size = 20, colour = "black", angle = 0),legend.position = "none")+
   facet_grid(.~Group)
 
-library(patchwork)
+##### Plot panels together
 D4+E4
 
 
@@ -121,8 +123,7 @@ G4<-ggplot(fit_R_main,aes(x=type,y=mean,color=type,group=time))+
   facet_grid(.~time)
 G4
 
-
-library(patchwork)
+##### Plot panels together
 AC4/ (D4+E4)/(F4+G4)
 
 

@@ -5,6 +5,8 @@
 ###load libraries
 library(ggplot2)
 library(data.table)
+library(sf)
+library(directlabels)
 
 ####Figure 1A###
 ## Figure 1A is made in Figtree and Microreact
@@ -77,7 +79,6 @@ plot.munic<-ggplot()+
 # plot.munic
 
 ###Figure 1E/F if inset is in supplement
-library(directlabels)
 load("./Figures/Figure1/melted.vaxamr.props.NVT.RData")
 load("./Figures/Figure1/melted.vaxamr.props.amr.RData")
 # melted.vaxamr.props.NVT<-subset(melted.vaxamr.props, melted.vaxamr.props$type=="NVT")
@@ -115,10 +116,13 @@ amr.props<-ggplot(melted.vaxamr.props.amr)+
 
 library(patchwork)
 
+####Plot together panels 1B and 1C###
 (B1+C1)
-  (plot.munic/nvt.props/amr.props)
 
+####Plot together panels plot.munic, nvt.props and amr.props###
+(plot.munic/nvt.props/amr.props)
 
+####Trees of GPSC 1 and 5###
 library(ape)
 tree5<-read.tree("./Figures/Figure1/tree_gpsc5.nwk")
 tree5$tip.label<-rep(NA,length(tree5$tip.label))
