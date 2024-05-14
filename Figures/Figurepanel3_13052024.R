@@ -108,7 +108,7 @@ E3<-ggplot(subset(mat.nvtpcv,mat.nvtpcv$type=="Municipalites"),aes(x=year,y=mean
   theme(axis.text=element_text(size=20),axis.title = element_text(size=20),axis.text.x=element_text(size=20,angle=45,vjust=0.6))+
   labs(shape="Years of\nTransmission")
 
-
+###Plot panels together####
 library(patchwork)
 (A3+B3)/(D3+E3)
 (risk1Year)
