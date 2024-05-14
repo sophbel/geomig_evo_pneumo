@@ -95,7 +95,7 @@ pmanycont
 # dev.off()
 # ggsave(pmanycont,file="./RelativeRisk/plots/RR.overdistTime.pdf",width=3.4,height=10)
 ##### Plot Continuous
-mat_distancerange <- matplot_continuous
+mat_distancerange <- matplot_continuous.noSub
 mat_distancerange$lowerCI[mat_distancerange$lowerCI <= 0.1 ] <- 0.1
 mat_distancerange$upperCI[mat_distancerange$upperCI <= 0.1]<- 0.1
 mat_distancerange$RR[mat_distancerange$RR <= 0.1]<- 0.1
