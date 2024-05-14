@@ -1,0 +1,7 @@
+Group,Time,mean,lowerCI,upperCI
+NVT,Pre.PCV,1.00,1,1
+PCV7,Pre.PCV,0.90,0.88,0.92
+PCV13,Pre.PCV,0.92,0.89,0.95
+NVT,Post.PCV,1.00,1,1
+PCV7,Post.PCV,0.55,0.49,0.6
+PCV13,Post.PCV,0.63,0.6,0.66

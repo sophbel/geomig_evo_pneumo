@@ -291,8 +291,7 @@ for (i in 1){
     }
     print(boot)
   }
-  
-  munic_df<-melt(munic_nums)
+  munic_df<-melt(munic_nums,id=1:3)
   colnames(munic_df)<-c("generations","boot","nmunic")
   munic_df<-data.frame(munic_df)
   #nmunic
@@ -302,13 +301,14 @@ for (i in 1){
   overall_avs$lower_CI<-apply(munic_nums, 1, function(x) quantile(x,probs=c(0.025),na.rm=T))
   overall_avs$upper_CI<-apply(munic_nums, 1, function(x) quantile(x,probs=c(0.975),na.rm=T))
   overall_avs$med<-apply(munic_nums, 1, function(x) quantile(x,probs=c(0.5),na.rm=T))
+  # saveRDS(overall_avs,file="Figure3/overall_avs.RData")
   
   # overall_avs$lower_CI<-apply(munic_nums, 1, function(x) min(x,na.rm = T))
   # overall_avs$upper_CI<-apply(munic_nums, 1, function(x)  max(x,na.rm = T))
   munic_df$years<-munic_df$generations/10
   
   ##distance
-  munic_df2<-melt(munic_dist)
+  munic_df2<-melt(munic_dist,id=1:3)
   colnames(munic_df2)<-c("generations","boot","dist")
   munic_df2<-data.frame(munic_df2)
   overall_avs2<- data.table(apply(munic_dist, 1, function(x) mean(x,na.rm=T)))
@@ -321,6 +321,7 @@ for (i in 1){
   overall_avs2$min<-apply(munic_dist, 1, function(x) min(x,na.rm=T))
   overall_avs2$max<-apply(munic_dist, 1, function(x) max(x,na.rm=T))
   munic_df2$years<-munic_df2$generations/10
+  # saveRDS(munic_df,file="./munic_df.RData")
   
   ggplot(munic_df)+
     geom_line(aes(x=years,y=nmunic,group=boot),alpha=0.09,color="grey")+
@@ -348,7 +349,7 @@ for (i in 1){
   }
   
   ##nmunic
-  munic_df_urban<-melt(munic_nums_urban)
+  munic_df_urban<-melt(munic_nums_urban,id=1:3)
   colnames(munic_df_urban)<-c("generations","boot","nmunic")
   munic_df_urban<-data.frame(munic_df_urban)
   overall_avs_urban<- data.table(apply(munic_nums_urban, 1, function(x) mean(x,na.rm=T)))
@@ -363,7 +364,7 @@ for (i in 1){
   munic_df_urban$years<-munic_df_urban$generations/10
   
   ##distance
-  munic_df_urban2<-melt(munic_dist_urban)
+  munic_df_urban2<-melt(munic_dist_urban,id=1:3)
   colnames(munic_df_urban2)<-c("generations","boot","dist")
   munic_df_urban2<-data.frame(munic_df_urban2)
   overall_avs_urban2<- data.table(apply(munic_dist_urban, 1, function(x) mean(x,na.rm=T)))
@@ -405,7 +406,7 @@ for (i in 1){
   }
   
   ### number of munic.
-  munic_df_rural<-melt(munic_nums_rural)
+  munic_df_rural<-melt(munic_nums_rural,id=1:3)
   colnames(munic_df_rural)<-c("generations","boot","nmunic")
   munic_df_rural<-data.frame(munic_df_rural)
   overall_avs_rural<- data.table(apply(munic_nums_rural, 1, function(x) mean(x,na.rm=T)))
@@ -420,7 +421,7 @@ for (i in 1){
   munic_df_rural$years<-munic_df_rural$generations/10
   
   ### distance
-  munic_df_rural2<-melt(munic_dist_rural)
+  munic_df_rural2<-melt(munic_dist_rural,id=1:3)
   colnames(munic_df_rural2)<-c("generations","boot","dist")
   munic_df_rural2<-data.frame(munic_df_rural2)
   overall_avs_rural2<- data.table(apply(munic_dist_rural, 1, function(x) mean(x,na.rm=T)))

@@ -89,6 +89,8 @@ mean.and.ci(fitness_PCV7_post/fitness_PCV7_pre)
 mean.and.ci(fitness_PCV13_post/fitness_PCV13_pre)
 mean.and.ci(fitness_NVT_post/fitness_NVT_pre)
 
+
+
 ######Pre and post compared to an NVT reference####
 prePostNVTRef.df<-matrix(nrow=6,ncol=5)
 prePostNVTRef.df[1,1:3]<-mean.and.ci(fitness_NVT_pre/fitness_NVT_pre)
@@ -140,9 +142,9 @@ prePost.df$Time<-factor(prePost.df$Time,levels=c("Pre","Post"),labels=c("Pre-PCV
 prePost.df$Group<-factor(prePost.df$Group,levels=c("NVT","PCV7","PCV13"))
 # 
 prePost.df.estimates<-prePost.df
-save(prePost.df.estimates,file="./5_figures/AMR_VaxStat/prePost.df.estimates.RData")
+# save(prePost.df.estimates,file="./5_figures/AMR_VaxStat/prePost.df.estimates.RData")
 prePostNVTRef.df.estimates<-prePostNVTRef.df
-save(prePostNVTRef.df.estimates,file="./5_figures/AMR_VaxStat/prePostNVTRef.df.estimates.RData")
+# save(prePostNVTRef.df.estimates,file="./5_figures/AMR_VaxStat/prePostNVTRef.df.estimates.RData")
 
 p2<-ggplot(prePostNVTRef.df.estimates,aes(x=Group,y=mean,group=Time,color=Group))+
   geom_hline(yintercept = 1, linetype = "longdash", color = 'grey')+
@@ -203,6 +205,15 @@ mean.and.ci(c(fitness_PCV7_post,fitness_PCV13_post)/fitness_NVT_post)
 mean.and.ci(c(fitness_PCV7_post)/fitness_NVT_post)
 mean.and.ci(c(fitness_PCV13_post)/fitness_NVT_post)
 
+### advantage of NVTs post PCV 
+mean.and.ci(fitness_NVT_post/c(fitness_PCV7_post,fitness_PCV13_post))
+### advantage of NVTs post PCV per generation
+gentime_years<- 35/365
+mean.and.ci((fitness_NVT_post/c(fitness_PCV7_post,fitness_PCV13_post)) *gentime_years)
+
+
+
+
 
 mean.and.ci(fitness_NVT_pre)
 mean.and.ci(fitness_NVT_post)
@@ -214,4 +225,4 @@ mean.and.ci(fitness_PCV13_pre)
 mean.and.ci(fitness_PCV13_post)
 
 
-
+(fitness_NVT_post/5)*gentime_years
