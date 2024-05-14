@@ -11,7 +11,7 @@ library(data.table)
 # url{https://microreact.org/project/7wqgd2gbBBEeBLLPKonbaT-belman2024southafricapneumococcus}
 
 ###Figure 1B####
-load("./Figures/Figure1/shp.tmp.RData")
+shp.tmp<-sf::st_read("./Figures/Figure1/shps/gadm36_ZAF_1.shp")
 provs=c("Eastern Cape","Free State","Gauteng","KwaZulu-Natal","Limpopo","Mpumalanga","North West","Northern Cape","Western Cape")
 cols = c("#1A9D75","#D95E02","#7470B3","#E7288B","#66A71E","#E7AB02","#A7761C","#616161","#00008B")
 B1<-ggplot(data=shp.tmp)+
@@ -80,7 +80,7 @@ plot.munic<-ggplot()+
 library(directlabels)
 load("./Figures/Figure1/melted.vaxamr.props.NVT.RData")
 load("./Figures/Figure1/melted.vaxamr.props.amr.RData")
-melted.vaxamr.props.NVT<-subset(melted.vaxamr.props, melted.vaxamr.props$type=="NVT")
+# melted.vaxamr.props.NVT<-subset(melted.vaxamr.props, melted.vaxamr.props$type=="NVT")
 nvt.props<- ggplot(melted.vaxamr.props.NVT)+
   geom_line(aes(x=year,y=proportion,color="black"))+
   theme_classic()+
