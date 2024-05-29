@@ -1,5 +1,5 @@
 '%notin%'<-Negate('%in%')
-setwd("/Users/sb62/Documents/Migration/Analysis_GeographicMobility_pneumoPaper/HumanMobility_RR")
+setwd("/Users/sophiebelman/Documents/Migration/Analysis_GeographicMobility_pneumoPaper/HumanMobility_RR")
 #----- Script to extract Landscan population data -----#
 library(maptools)
 library(sf)
@@ -259,7 +259,7 @@ p<-ggplot(data=shp.tmp)+
          legend.text=element_text(size=20))  +
   annotation_scale()+
    labs(fill="Population Density\n(person/km^2)")
-# load("/Users/sb62/Documents/Migration/SA_Migration_110422/ModelProjections/RR1Year_popDensities.RData")
+# load("/Users/sophiebelman/Documents/Migration/SA_Migration_110422/ModelProjections/RR1Year_popDensities.RData")
 p
 
 
